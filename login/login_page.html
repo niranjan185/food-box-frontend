@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Box - Login</title>
+  <link rel="stylesheet" href="login_page.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="background-image"></div>
+
+  <div class="form-container">
+    <div class="form-header">
+      <h1 class="logo">Food Box</h1>
+    </div>
+
+  <form id="login-form" class="main-form" method="POST" action="../../backend/login_page.php">
+  <div class="user-type-selector">
+    <label><input type="radio" name="user_type" value="customer" checked><span>Customer</span></label>
+    <label><input type="radio" name="user_type" value="delivery"><span>Delivery Boy</span></label>
+  </div>
+  <div class="input-group">
+    <label for="phn">Phone</label>
+    <input type="tel" id="phn" name="phn" placeholder="Phone" required>
+  </div>
+  <div class="input-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+  </div>
+  <button type="submit" class="cta-button">Login</button>
+  <a href="#" class="forgot-password">Forgot Password?</a>
+</form>
+
+
+    <div class="form-footer">
+      <p>Don’t have an account? <a href="../register/register.html">Register here</a></p>
+    </div>
+  </div>
+
+  <script src="login_page.js"></script>
+</body>
+</html>

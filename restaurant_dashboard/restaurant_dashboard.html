@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Dashboard</title>
+    <link rel="stylesheet" href="restauarant_dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <?php include 'shared_header.php'; ?>
+
+    <div class="container dashboard-grid">
+        <div class="main-content">
+            <h1 id="welcome-restaurant-name">Welcome, Restaurant!</h1>
+            <p>Here's a quick overview of your operations.</p>
+
+            <section class="mt-4">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Today's Performance</h2>
+                <div class="card-grid">
+                    <div class="card text-center">
+                        <h3>New Orders</h3>
+                        <p class="h1 mb-0" id="new-orders-count">0</p>
+                        <a href="orders.html?status=pending" class="btn btn-secondary btn-sm">View New Orders</a>
+                    </div>
+                    <div class="card text-center">
+                        <h3>Total Sales (Today)</h3>
+                        <p class="h1 mb-0" id="total-sales-today">$0.00</p>
+                        <a href="earnings.html" class="btn btn-secondary btn-sm">View Earnings</a>
+                    </div>
+                    <div class="card text-center">
+                        <h3>Pending Deliveries</h3>
+                        <p class="h1 mb-0" id="pending-deliveries-count">0</p>
+                        <a href="orders.html?status=out_for_delivery" class="btn btn-secondary btn-sm">Track Deliveries</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mt-4">
+                <h2 class="section-title"><i class="fas fa-history"></i> Recent Orders</h2>
+                <div id="recent-orders-list">
+                    <!-- Recent orders will be loaded here by JavaScript -->
+                    <p class="text-center" id="no-recent-orders">No recent orders to display.</p>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="orders.html" class="btn btn-primary">View All Orders</a>
+                </div>
+            </section>
+
+            <section class="mt-4">
+                <h2 class="section-title"><i class="fas fa-utensils"></i> Top Selling Items (Last 7 Days)</h2>
+                <div id="top-selling-items" class="card-grid">
+                    <!-- Top selling items will be loaded here by JavaScript -->
+                    <p class="text-center" id="no-top-items">No top selling items to display yet.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="sidebar">
+            <h2 class="section-title"><i class="fas fa-compass"></i> Quick Actions</h2>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="menu_management.html" class="btn btn-accent"><i class="fas fa-plus-circle"></i> Add New Menu Item</a></li>
+                    <li><a href="orders.html" class="btn btn-secondary mt-2"><i class="fas fa-concierge-bell"></i> Manage Orders</a></li>
+                    <li><a href="profile.html" class="btn btn-primary mt-2"><i class="fas fa-user-cog"></i> Update Restaurant Profile</a></li>
+                    <li>
+                        <a href="/webtechnologies/FoodBox/backend/logout.php" class="btn btn-primary mt-2"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box Restaurant. All rights reserved.</p>
+    </footer>
+
+    <script src="js/shared.js"></script>
+    <script src="restauarant_dashboard.js"></script>
+</body>
+</html>

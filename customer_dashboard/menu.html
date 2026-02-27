@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4ECDC4;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            text-align: center;
+        }
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        .search-filter-section {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-filter-section input[type="text"],
+        .search-filter-section select {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            transition: var(--transition);
+        }
+
+        .search-filter-section input[type="text"]:focus,
+        .search-filter-section select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+            outline: none;
+        }
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .restaurant-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .restaurant-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .restaurant-card-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .restaurant-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        .restaurant-card p {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .restaurant-card .rating {
+            color: #f7b307; /* Star color */
+            margin-right: 5px;
+        }
+
+        .restaurant-card .delivery-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .restaurant-card .delivery-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .restaurant-detail-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .restaurant-detail-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: var(--shadow);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-header p {
+            color: #777;
+            font-size: 1.1em;
+        }
+
+        .menu-category {
+            margin-bottom: 30px;
+        }
+
+        .menu-category h3 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-dark);
+            padding-bottom: 10px;
+        }
+
+        .menu-item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item-card {
+            background-color: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .menu-item-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .menu-item-details {
+            flex-grow: 1;
+        }
+
+        .menu-item-details h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+
+        .menu-item-details p {
+            font-size: 0.85em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .menu-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item-actions .price {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--bg-dark);
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .quantity-control button {
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: var(--text-color);
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .quantity-control button:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .quantity-control span {
+            font-weight: 500;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: #ff5722;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        .btn-secondary:hover {
+            background-color: #3aa8a1;
+        }
+
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Explore Restaurants</h1>
+
+        <div class="search-filter-section">
+            <input type="text" id="search-input" placeholder="Search for restaurants or dishes...">
+            <select id="cuisine-filter">
+                <option value="">All Cuisines</option>
+                <option value="Italian">Italian</option>
+                <option value="American">American</option>
+                <option value="Mexican">Mexican</option>
+                <option value="Indian">Indian</option>
+                <option value="Japanese">Japanese</option>
+            </select>
+            <select id="price-filter">
+                <option value="">Any Price</option>
+                <option value="low">Under ₹100</option>
+                <option value="medium">₹100–₹300</option>
+                <option value="high">Over ₹300</option>
+            </select>
+            <select id="category-filter">
+                <option value="">All Categories</option>
+                <option value="Pizza">Pizza</option>
+                <option value="Burgers">Burgers</option>
+                <option value="Beverages">Beverages</option>
+                <option value="Desserts">Desserts</option>
+                <option value="Main Course">Main Course</option>
+            </select>
+            <select id="rating-filter">
+                <option value="">All Ratings</option>
+                <option value="4">4+ Stars</option>
+                <option value="3">3+ Stars</option>
+            </select>
+            <select id="sort-by">
+                <option value="">Sort By</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="rating_desc">Rating: High to Low</option>
+                <option value="name_asc">Name: A to Z</option>
+            </select>
+            <select id="dietary-filter">
+                <option value="">All Diets</option>
+                <option value="veg">veg</option>
+                <option value="non_veg">Non Veg</option>
+            </select>
+            <button class="btn btn-secondary" id="apply-filters-btn">Apply Filters</button>
+        </div>
+
+        <div class="restaurant-grid" id="restaurant-list">
+            <!-- Restaurant cards will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Restaurant Detail Modal -->
+    <div id="restaurantDetailModal" class="restaurant-detail-modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-header">
+                <h2 id="modal-restaurant-name"></h2>
+                <p id="modal-restaurant-info"></p>
+                <p><strong>Address:</strong> <span id="modal-restaurant-address"></span> | <strong>Hours:</strong> <span id="modal-restaurant-hours"></span></p>
+                <p><strong>Rating:</strong> <span id="modal-restaurant-rating"></span></p>
+            </div>
+            <div id="modal-menu-categories">
+                <!-- Menu categories and items will be loaded here -->
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2025 Food Box. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('restaurant-list'); // reuse grid
+            const searchInput = document.getElementById('search-input');
+            const cuisineFilter = document.getElementById('cuisine-filter'); // maps to category
+            const priceFilter = document.getElementById('price-filter');
+            const categoryFilter = document.getElementById('category-filter');
+            const ratingFilter = document.getElementById('rating-filter'); // unused for now
+            const sortBySelect = document.getElementById('sort-by');
+            const dietaryFilter = document.getElementById('dietary-filter'); // unused
+            const applyFiltersBtn = document.getElementById('apply-filters-btn');
+            const paramsQS = new URLSearchParams(window.location.search);
+            const restaurantId = parseInt(paramsQS.get('restaurant_id') || '0', 10) || 0;
+
+            updateCartCount();
+            if (restaurantId) {
+                // In restaurant context, adjust heading
+                const h1 = document.querySelector('h1');
+                if (h1) h1.textContent = 'Restaurant Menu';
+            }
+            loadMenuItems();
+
+            applyFiltersBtn.addEventListener('click', () => loadMenuItems());
+            searchInput.addEventListener('input', () => loadMenuItems());
+            cuisineFilter.addEventListener('change', () => loadMenuItems());
+            priceFilter.addEventListener('change', () => loadMenuItems());
+            categoryFilter.addEventListener('change', () => loadMenuItems());
+            ratingFilter.addEventListener('change', () => loadMenuItems());
+            dietaryFilter.addEventListener('change', () => loadMenuItems());
+            sortBySelect.addEventListener('change', () => loadMenuItems());
+
+            async function loadMenuItems() {
+                try {
+                    let url;
+                    if (restaurantId) {
+                        // Fetch items for a specific restaurant
+                        const p = new URLSearchParams();
+                        p.set('restaurant_id', String(restaurantId));
+                        if (searchInput.value) p.set('search', searchInput.value);
+                        if (categoryFilter.value) p.set('category', categoryFilter.value);
+                        if (dietaryFilter.value) p.set('diet', dietaryFilter.value);
+                        url = `/webtechnologies/FoodBox/backend/api/customer/list_menu_items.php?${p.toString()}`;
+                    } else {
+                        // Generic menu across restaurants (existing behavior)
+                        const params = new URLSearchParams();
+                        if (searchInput.value) params.set('search', searchInput.value);
+                        if (cuisineFilter.value) params.set('cuisine', cuisineFilter.value);
+                        if (priceFilter.value) params.set('price', priceFilter.value);
+                        if (categoryFilter.value) params.set('category', categoryFilter.value);
+                        if (ratingFilter.value) params.set('rating_min', ratingFilter.value);
+                        if (dietaryFilter.value) params.set('diet', dietaryFilter.value);
+                        url = `/webtechnologies/FoodBox/backend/api/customer/get_menu_items.php?${params.toString()}`;
+                    }
+
+                    const resp = await fetch(url);
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error || 'Failed to load menu');
+                    let items = data.menu_items || [];
+                    // Client-side sorting
+                    const sortBy = sortBySelect.value;
+                    if (sortBy === 'price_asc') {
+                        items.sort((a,b) => parseFloat(a.price) - parseFloat(b.price));
+                    } else if (sortBy === 'price_desc') {
+                        items.sort((a,b) => parseFloat(b.price) - parseFloat(a.price));
+                    } else if (sortBy === 'rating_desc') {
+                        const ar = (x) => parseFloat(x.avg_rating || 0);
+                        items.sort((a,b) => ar(b) - ar(a));
+                    } else if (sortBy === 'name_asc') {
+                        items.sort((a,b) => String(a.name || '').localeCompare(String(b.name || '')));
+                    }
+                    renderItems(items);
+                } catch (e) {
+                    console.error(e);
+                    container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">Failed to load menu items.</p>';
+                }
+            }
+
+            function renderItems(items) {
+                container.innerHTML = '';
+                if (items.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No items found.</p>';
+                    return;
+                }
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.classList.add('restaurant-card');
+                    const ratingVal = parseFloat(item.avg_rating || 0);
+                    const ratingRounded = Math.round(ratingVal);
+                    const stars = '★'.repeat(ratingRounded) + '☆'.repeat(5 - ratingRounded);
+                    card.innerHTML = `
+                        <img src="${item.image_url || 'https://via.placeholder.com/300x180?text=Food'}" alt="${item.name}">
+                        <div class="restaurant-card-content">
+                            <h3>${item.name}</h3>
+                            <p>${item.restaurant_name || ''}</p>
+                            <p><span class="rating">${stars}</span> (${ratingVal.toFixed(1)})</p>
+                            <p>Category: ${item.category || 'N/A'}</p>
+                            <div class="delivery-info">
+                                <span><i class="fas fa-tag"></i> ₹${parseFloat(item.price).toFixed(2)}</span>
+                                <span><i class="fas fa-check-circle"></i> ${parseInt(item.is_available) ? 'Available' : 'Unavailable'}</span>
+                            </div>
+                            <div class="menu-item-actions">
+                                <div class="quantity-control">
+                                    <button class="qty-minus">-</button>
+                                    <span class="qty-display">1</span>
+                                    <button class="qty-plus">+</button>
+                                </div>
+                                <button class="btn add-to-cart">Add</button>
+                            </div>
+                        </div>
+                    `;
+                    const qtyDisplay = card.querySelector('.qty-display');
+                    card.querySelector('.qty-plus').onclick = () => {
+                        qtyDisplay.textContent = String(parseInt(qtyDisplay.textContent) + 1);
+                    };
+                    card.querySelector('.qty-minus').onclick = () => {
+                        const q = Math.max(1, parseInt(qtyDisplay.textContent) - 1);
+                        qtyDisplay.textContent = String(q);
+                    };
+                    card.querySelector('.add-to-cart').onclick = () => addToCart(item.id, parseInt(qtyDisplay.textContent));
+                    container.appendChild(card);
+                });
+            }
+
+            async function addToCart(menuItemId, quantity) {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/add_to_cart.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ menu_item_id: menuItemId, quantity })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error || 'Failed to add to cart');
+                    document.getElementById('cart-item-count').textContent = data.cart_count;
+                    alert('Added to cart');
+                } catch (e) {
+                    console.error(e);
+                    alert('Could not add to cart');
+                }
+            }
+
+            async function updateCartCount() {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_cart.php');
+                    const data = await resp.json();
+                    if (resp.ok && data.cart_items) {
+                        document.getElementById('cart-item-count').textContent = data.cart_items.length;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }
+        });
+    </script>
+</body>
+</html>

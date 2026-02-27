@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        .payment-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .address-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .address-card {
+            background-color: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .address-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .address-card input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+            accent-color: var(--secondary-color);
+        }
+
+        .address-card.selected {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px var(--secondary-color);
+            background-color: rgba(78, 205, 196, 0.08);
+        }
+
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .payment-method-card {
+            background-color: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .payment-method-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+            background-color: rgba(255, 107, 107, 0.08);
+        }
+
+        .payment-method-card i {
+            font-size: 2.5em;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        .payment-method-card p {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .card-details-form {
+            margin-top: 25px;
+            display: none; /* Hidden by default */
+        }
+
+        .card-details-form .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card-details-form .form-row > div {
+            flex: 1;
+        }
+
+        .order-summary-box {
+            background-color: var(--bg-dark);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 1.1em;
+        }
+
+        .summary-row.total {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-top: 2px solid var(--bg-light);
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+        .btn {
+            display: block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            text-align: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #e55a5a;
+        }
+
+        .btn-secondary-outline {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+        .btn-secondary-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Checkout</h1>
+
+        <div class="payment-section">
+            <h2><i class="fas fa-map-marker-alt"></i> Delivery Address</h2>
+            <div class="address-selection" id="delivery-addresses">
+                <!-- Addresses will be loaded here -->
+            </div>
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="choose-on-map" class="btn btn-secondary-outline" style="width:auto;"><i class="fas fa-map"></i> Choose on Map</button>
+                <span id="chosen-location-badge" style="display:none; color:#2b9348; font-weight:600;"></span>
+            </div>
+            <!-- New Address Form (initially hidden) -->
+            <div id="new-address-form" style="display: none; margin-top: 20px; padding: 20px; background-color: var(--bg-light); border-radius: 8px;">
+                <h3>Add New Address</h3>
+                <div class="form-group">
+                    <label for="new-address-line1">Address Line 1</label>
+                    <input type="text" id="new-address-line1" placeholder="Street name, building, apartment number">
+                </div>
+                <div class="form-group">
+                    <label for="new-address-line2">Address Line 2 (Optional)</label>
+                    <input type="text" id="new-address-line2" placeholder="Floor, Suite, etc.">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-city">City</label>
+                        <input type="text" id="new-city" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-state">State</label>
+                        <input type="text" id="new-state" placeholder="State">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-zip">Zip Code</label>
+                        <input type="text" id="new-zip" placeholder="12345">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-address-label">Label (e.g., Home, Work)</label>
+                        <input type="text" id="new-address-label" placeholder="Home">
+                    </div>
+                </div>
+                <button class="btn btn-secondary-outline" id="save-new-address-btn" style="width: auto;">Save Address</button>
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <h2><i class="fas fa-credit-card"></i> Payment Method</h2>
+            <div class="payment-methods-grid" id="payment-methods">
+                <div class="payment-method-card selected" data-method="card">
+                    <i class="fas fa-credit-card"></i>
+                    <p>Credit/Debit Card</p>
+                </div>
+                <div class="payment-method-card" data-method="paypal">
+                    <i class="fab fa-paypal"></i>
+                    <p>PayPal</p>
+                </div>
+                <div class="payment-method-card" data-method="gpay">
+                    <i class="fab fa-google-pay"></i>
+                    <p>Google Pay</p>
+                </div>
+                <div class="payment-method-card" data-method="cod">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <p>Cash on Delivery</p>
+                </div>
+            </div>
+
+            <div id="card-details-form" class="card-details-form">
+                <h3>Enter Card Details</h3>
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="XXX" maxlength="4">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card-name">Name on Card</label>
+                    <input type="text" id="card-name" placeholder="John Doe">
+                </div>
+            </div>
+            <!-- Digital wallet buttons would be here, e.g., <button>Pay with PayPal</button> -->
+            <div id="digital-wallet-buttons" style="display: none; margin-top: 25px; text-align: center;">
+                <button class="btn btn-secondary-outline" style="width: 50%; margin: 10px auto;">Proceed with PayPal</button>
+            </div>
+            <div id="cod-info" style="display: none; margin-top: 25px; padding: 15px; background-color: var(--bg-light); border-radius: 8px;">
+                <p><i class="fas fa-info-circle"></i> You will pay cash to the delivery person upon arrival.</p>
+            </div>
+        </div>
+
+        <div class="order-summary-box">
+            <h2>Order Summary</h2>
+            <div class="summary-row">
+                <span>Items Subtotal:</span>
+                <span id="summary-subtotal">₹0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery Fee:</span>
+                <span id="summary-delivery-fee">₹5.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax (5%):</span>
+                <span id="summary-tax-amount">₹0.00</span>
+            </div>
+            <div class="summary-row" id="summary-discount-row" style="display: none;">
+                <span>Discount:</span>
+                <span id="summary-discount-amount">-₹0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total Amount:</span>
+                <span id="summary-total-price">₹0.00</span>
+            </div>
+        </div>
+
+        <button id="place-order-btn" class="btn">Place Order</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box. All rights reserved.</p>
+    </footer>
+
+    <!-- Leaflet Assets and Map Modal -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <div id="mapPickerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; width:min(900px, 95vw); border-radius:10px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #eee;">
+                <strong>Select Delivery Location</strong>
+                <button id="closeMapPicker" class="btn btn-secondary-outline" style="width:auto; padding:6px 10px;">Close</button>
+            </div>
+            <div style="padding:10px 14px; display:flex; gap:8px; align-items:center; border-bottom:1px solid #eee;">
+                <input id="mapSearchInput" type="text" placeholder="Search place or address" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <button id="mapSearchBtn" class="btn btn-secondary-outline" style="width:auto;">Search</button>
+            </div>
+            <div id="mapPicker" style="height:420px;"></div>
+            <div style="padding:10px 14px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #eee;">
+                <button id="useCurrentLocation" class="btn btn-secondary-outline" style="width:auto;">Use My Location</button>
+                <button id="confirmMapLocation" class="btn" style="width:auto;">Confirm Location</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartItemCountSpan = document.getElementById('cart-item-count');
+            const deliveryAddressesDiv = document.getElementById('delivery-addresses');
+            const newAddressForm = document.getElementById('new-address-form');
+            const paymentMethodsDiv = document.getElementById('payment-methods');
+            const cardDetailsForm = document.getElementById('card-details-form');
+            const digitalWalletButtons = document.getElementById('digital-wallet-buttons');
+            const codInfo = document.getElementById('cod-info');
+            const placeOrderBtn = document.getElementById('place-order-btn');
+            const chooseOnMapBtn = document.getElementById('choose-on-map');
+            const chosenBadge = document.getElementById('chosen-location-badge');
+            const mapPickerModal = document.getElementById('mapPickerModal');
+            const closeMapPicker = document.getElementById('closeMapPicker');
+            const useCurrentLocationBtn = document.getElementById('useCurrentLocation');
+            const confirmMapLocationBtn = document.getElementById('confirmMapLocation');
+            const mapSearchInput = document.getElementById('mapSearchInput');
+            const mapSearchBtn = document.getElementById('mapSearchBtn');
+            let selectedLat = null, selectedLng = null;
+            let selectedAddressText = '';
+            let mapInstance = null, mapMarker = null;
+
+            const summarySubtotal = document.getElementById('summary-subtotal');
+            const summaryDeliveryFee = document.getElementById('summary-delivery-fee');
+            const summaryTaxAmount = document.getElementById('summary-tax-amount');
+            const summaryDiscountRow = document.getElementById('summary-discount-row');
+            const summaryDiscountAmount = document.getElementById('summary-discount-amount');
+            const summaryTotalPrice = document.getElementById('summary-total-price');
+
+            // --- Cart and Pricing Logic (Server-driven) ---
+            let cartItems = [];
+            let currentDiscount = 0; // Future: load from promotions/coupons
+            const TAX_RATE = 0.05; // 5% (matches cart)
+
+            async function loadCart() {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_cart.php', { credentials: 'include' });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error || 'Failed to load cart');
+                    cartItems = data.cart_items || [];
+                    updateCartCountInNavbar();
+                    calculateOrderSummary();
+                } catch (e) {
+                    console.error(e);
+                    cartItems = [];
+                    updateCartCountInNavbar();
+                    calculateOrderSummary();
+                    alert('Could not load cart.');
+                }
+            }
+
+            function calculateOrderSummary() {
+                const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity, 10)), 0);
+                const deliveryFee = subtotal > 0 ? 40.00 : 0.00; // match cart.html
+                const tax = subtotal * TAX_RATE; // match cart.html
+                const finalTotal = subtotal + deliveryFee + tax - currentDiscount;
+
+                summarySubtotal.textContent = `₹${subtotal.toFixed(2)}`;
+                summaryDeliveryFee.textContent = `₹${deliveryFee.toFixed(2)}`;
+                summaryTaxAmount.textContent = `₹${tax.toFixed(2)}`;
+
+                if (currentDiscount > 0) {
+                    summaryDiscountAmount.textContent = `-₹${currentDiscount.toFixed(2)}`;
+                    summaryDiscountRow.style.display = 'flex';
+                } else {
+                    summaryDiscountRow.style.display = 'none';
+                }
+                summaryTotalPrice.textContent = `₹${Math.max(0, finalTotal).toFixed(2)}`;
+            }
+
+            function updateCartCountInNavbar() {
+                cartItemCountSpan.textContent = cartItems.length;
+            }
+            // --- End Cart and Pricing Logic ---
+
+
+            // Load and render dynamic addresses
+            async function loadAddresses() {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/addresses/list.php', { credentials: 'include' });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error || 'Failed to load addresses');
+                    const addresses = data.addresses || [];
+                    renderAddresses(addresses);
+                } catch (e) {
+                    console.error(e);
+                    deliveryAddressesDiv.innerHTML = '<p style="color:#777;">Could not load addresses.</p>';
+                }
+            }
+
+            function renderAddresses(addresses) {
+                deliveryAddressesDiv.innerHTML = '';
+                // Address cards
+                addresses.forEach(addr => {
+                    const id = addr.id;
+                    const checked = addr.is_default ? 'checked' : '';
+                    const card = document.createElement('label');
+                    card.className = 'address-card' + (addr.is_default ? ' selected' : '');
+                    card.innerHTML = `
+                        <input type="radio" name="delivery_address" value="${id}" ${checked}>
+                        <div>
+                            <strong>${addr.label || 'Address'}</strong><br>
+                            ${addr.street}${addr.apartment ? ', ' + addr.apartment : ''}<br>
+                            ${addr.city}, ${addr.state} ${addr.zip_code}
+                        </div>
+                    `;
+                    deliveryAddressesDiv.appendChild(card);
+                });
+                // Add new address option
+                const addNew = document.createElement('label');
+                addNew.className = 'address-card add-new-address-card';
+                addNew.innerHTML = `
+                    <input type="radio" name="delivery_address" value="new_address">
+                    <div>
+                        <strong>Add New Address</strong><br>
+                        <i class="fas fa-plus-circle"></i> Click to add a new delivery location.
+                    </div>
+                `;
+                deliveryAddressesDiv.appendChild(addNew);
+            }
+
+            // Address Selection Logic
+            deliveryAddressesDiv.addEventListener('change', (event) => {
+                if (event.target.name === 'delivery_address') {
+                    document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+                    event.target.closest('.address-card').classList.add('selected');
+                    newAddressForm.style.display = (event.target.value === 'new_address') ? 'block' : 'none';
+                }
+            });
+
+            document.getElementById('save-new-address-btn').addEventListener('click', async () => {
+                const line1 = document.getElementById('new-address-line1').value.trim();
+                const line2 = document.getElementById('new-address-line2').value.trim();
+                const city = document.getElementById('new-city').value.trim();
+                const state = document.getElementById('new-state').value.trim();
+                const zip = document.getElementById('new-zip').value.trim();
+                const label = document.getElementById('new-address-label').value.trim() || 'Home';
+                if (!line1 || !city || !state || !zip) {
+                    alert('Please fill the required address fields.');
+                    return;
+                }
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/addresses/create.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            label: label,
+                            street: line1,
+                            apartment: line2,
+                            city: city,
+                            state: state,
+                            zip_code: zip,
+                            country: 'IN',
+                            is_default: true,
+                            // include precise location if chosen on map
+                            lat: selectedLat,
+                            lng: selectedLng
+                        })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) throw new Error(data.error || 'Failed to save address');
+                    // Reload and select the new address
+                    await loadAddresses();
+                    const radio = deliveryAddressesDiv.querySelector(`input[name="delivery_address"][value="${data.id}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                    newAddressForm.style.display = 'none';
+                } catch (e) {
+                    console.error(e);
+                    alert('Could not save address.');
+                }
+            });
+
+            // Payment Method Selection Logic
+            let selectedPaymentMethod = 'card'; // Default
+            paymentMethodsDiv.addEventListener('click', (event) => {
+                const card = event.target.closest('.payment-method-card');
+                if (card) {
+                    document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedPaymentMethod = card.dataset.method;
+
+                    // Show/hide relevant forms/info
+                    cardDetailsForm.style.display = 'none';
+                    digitalWalletButtons.style.display = 'none';
+                    codInfo.style.display = 'none';
+
+                    if (selectedPaymentMethod === 'card') {
+                        cardDetailsForm.style.display = 'block';
+                    } else if (selectedPaymentMethod === 'paypal' || selectedPaymentMethod === 'gpay') {
+                        digitalWalletButtons.style.display = 'block';
+                    } else if (selectedPaymentMethod === 'cod') {
+                        codInfo.style.display = 'block';
+                    }
+                }
+            });
+
+            placeOrderBtn.addEventListener('click', async () => {
+                // Basic Validation (more robust validation needed for real apps)
+                const selectedEl = document.querySelector('input[name="delivery_address"]:checked');
+                const selectedAddress = selectedEl ? selectedEl.value : '';
+                if (!selectedAddress || (selectedAddress === 'new_address')) {
+                    alert('Please select or add a delivery address.');
+                    return;
+                }
+
+                if (selectedPaymentMethod === 'card') {
+                    const cardNumber = document.getElementById('card-number').value.trim();
+                    const expiryDate = document.getElementById('expiry-date').value.trim();
+                    const cvv = document.getElementById('cvv').value.trim();
+                    if (!cardNumber || !expiryDate || !cvv) {
+                        alert('Please enter complete card details.');
+                        return;
+                    }
+                } else if (selectedPaymentMethod === 'paypal' || selectedPaymentMethod === 'gpay') {
+                    alert(`Redirecting to ${selectedPaymentMethod} for payment...`);
+                } else if (selectedPaymentMethod === 'cod') {
+                    // no-op
+                }
+                // Create order on backend
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/create_order.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            payment_method: selectedPaymentMethod,
+                            address_id: selectedAddress === 'map_location' ? null : selectedAddress,
+                            // when map location selected, also send a human-readable address
+                            delivery_address: selectedAddress === 'map_location' ? selectedAddressText : undefined,
+                            // pass through geo if chosen (backends that support will use it)
+                            delivery_lat: selectedLat,
+                            delivery_lng: selectedLng
+                        })
+                    });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch { data = null; }
+                    if (resp.ok && data && data.success) {
+                        const orderId = data.order_id;
+                        window.location.href = `confirmation.html?orderId=${encodeURIComponent(orderId)}`;
+                    } else if (resp.status === 401) {
+                        window.location.href = '../login/login_page.html';
+                    } else {
+                        const msg = (data && (data.error_detail || data.error)) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || `HTTP ${resp.status}`;
+                        alert(`Failed to place order: ${msg}`);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Network error while creating order.');
+                }
+            });
+
+            // --- Map Picker Logic ---
+            function openMapPicker() {
+                mapPickerModal.style.display = 'flex';
+                setTimeout(() => {
+                    if (!mapInstance) {
+                        mapInstance = L.map('mapPicker').setView([17.385, 78.4867], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapInstance);
+                        mapInstance.on('click', (e) => {
+                            const { lat, lng } = e.latlng;
+                            selectedLat = lat; selectedLng = lng;
+                            if (!mapMarker) { mapMarker = L.marker([lat, lng], { draggable:true }).addTo(mapInstance); }
+                            else { mapMarker.setLatLng([lat, lng]); }
+                            mapMarker.on('dragend', (ev)=>{
+                                const p = ev.target.getLatLng();
+                                selectedLat = p.lat; selectedLng = p.lng;
+                            });
+                        });
+                    }
+                    // try to center on current
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((pos)=>{
+                            const center = [pos.coords.latitude, pos.coords.longitude];
+                            mapInstance.setView(center, 15);
+                        }, ()=>{}, { enableHighAccuracy:true, timeout:6000 });
+                    }
+                }, 50);
+            }
+            function closePicker() { mapPickerModal.style.display = 'none'; }
+
+            chooseOnMapBtn.addEventListener('click', (e)=>{ e.preventDefault(); openMapPicker(); });
+            closeMapPicker.addEventListener('click', (e)=>{ e.preventDefault(); closePicker(); });
+            useCurrentLocationBtn.addEventListener('click', (e)=>{
+                e.preventDefault();
+                if (!navigator.geolocation) return alert('Geolocation not available.');
+                navigator.geolocation.getCurrentPosition((pos)=>{
+                    selectedLat = pos.coords.latitude; selectedLng = pos.coords.longitude;
+                    if (!mapInstance) return;
+                    if (!mapMarker) { mapMarker = L.marker([selectedLat, selectedLng], { draggable:true }).addTo(mapInstance); }
+                    else { mapMarker.setLatLng([selectedLat, selectedLng]); }
+                    mapInstance.setView([selectedLat, selectedLng], 16);
+                }, ()=> alert('Could not get your location.'), { enableHighAccuracy:true, timeout:6000 });
+            });
+            confirmMapLocationBtn.addEventListener('click', async (e)=>{
+                e.preventDefault();
+                if (selectedLat == null || selectedLng == null) { alert('Please click on the map to choose a location.'); return; }
+                // Reverse geocode to show an address string
+                try {
+                    const p = new URLSearchParams({ lat: String(selectedLat), lon: String(selectedLng) });
+                    if (window.NOMINATIM_CONTACT_EMAIL) p.set('email', window.NOMINATIM_CONTACT_EMAIL);
+                    const r = await fetch(`/webtechnologies/FoodBox/backend/api/utils/geocode_reverse.php?${p.toString()}`, { credentials:'include' });
+                    if (r.ok) {
+                        const j = await r.json();
+                        selectedAddressText = (j && j.display_name) ? j.display_name : '';
+                        // Autofill form fields from address parts
+                        const a = j && j.address ? j.address : {};
+                        const cityLike = a.city || a.town || a.village || a.suburb || a.hamlet || '';
+                        const stateLike = a.state || a.region || '';
+                        const zipLike = a.postcode || '';
+                        const countryLike = a.country_code ? a.country_code.toUpperCase() : (a.country || '');
+                        try {
+                            const cityEl = document.getElementById('new-city'); if (cityEl && !cityEl.value) cityEl.value = cityLike;
+                            const stateEl = document.getElementById('new-state'); if (stateEl && !stateEl.value) stateEl.value = stateLike;
+                            const zipEl = document.getElementById('new-zip'); if (zipEl && !zipEl.value) zipEl.value = zipLike;
+                            const countryEl = document.getElementById('new-country'); if (countryEl && !countryEl.value) countryEl.value = countryLike || 'IN';
+                        } catch {}
+                    }
+                } catch { /* ignore reverse errors */ }
+                // Encourage user to save this as a new address by prefilling
+                try {
+                    document.getElementById('new-address-line1').value = selectedAddressText || `${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)}`;
+                    newAddressForm.style.display = 'block';
+                    // select Add New Address option to show form
+                    const addNewRadio = deliveryAddressesDiv.querySelector('input[name="delivery_address"][value="new_address"]');
+                    if (addNewRadio) {
+                        addNewRadio.checked = true;
+                        addNewRadio.dispatchEvent(new Event('change'));
+                    }
+                } catch {}
+                // Insert or update a temporary address card for map selection
+                const existing = document.getElementById('map-address-card');
+                const cardHtml = `
+                    <label class="address-card selected" id="map-address-card">
+                        <input type="radio" name="delivery_address" value="map_location" checked>
+                        <div>
+                            <strong>Map Location</strong><br>
+                            ${selectedAddressText ? selectedAddressText : `${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)}`}
+                        </div>
+                    </label>`;
+                if (existing) {
+                    existing.outerHTML = cardHtml;
+                } else {
+                    const first = deliveryAddressesDiv.firstChild;
+                    if (first) {
+                        const temp = document.createElement('div');
+                        temp.innerHTML = cardHtml;
+                        deliveryAddressesDiv.insertBefore(temp.firstChild, first);
+                    } else {
+                        deliveryAddressesDiv.innerHTML = cardHtml;
+                    }
+                }
+                // Update selected marker text
+                chosenBadge.style.display = 'inline';
+                chosenBadge.textContent = selectedAddressText
+                    ? `Location set: ${selectedAddressText}`
+                    : `Location set (${selectedLat.toFixed(5)}, ${selectedLng.toFixed(5)})`;
+                closePicker();
+            });
+
+            async function geocodeSearch(q){
+                const query = (q || '').trim();
+                if (!query) return;
+                // Accept direct coordinates like "17.05026,81.99753"
+                const coordMatch = query.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+                if (coordMatch) {
+                    const latNum = parseFloat(coordMatch[1]);
+                    const lngNum = parseFloat(coordMatch[2]);
+                    selectedLat = latNum; selectedLng = lngNum;
+                    if (!mapMarker) { mapMarker = L.marker([latNum, lngNum], { draggable:true }).addTo(mapInstance); }
+                    else { mapMarker.setLatLng([latNum, lngNum]); }
+                    mapInstance.setView([latNum, lngNum], 16);
+                    return;
+                }
+                try{
+                    const params = new URLSearchParams({ q: query, limit:'3', addressdetails:'1', countrycodes:'in' });
+                    if (window.NOMINATIM_CONTACT_EMAIL) params.set('email', window.NOMINATIM_CONTACT_EMAIL);
+                    const resp = await fetch(`/webtechnologies/FoodBox/backend/api/utils/geocode_search.php?${params.toString()}`, { credentials:'include' });
+                    if (!resp.ok) throw new Error('Search failed');
+                    const results = await resp.json();
+                    if (!Array.isArray(results) || results.length === 0) { alert('No results found. Try a more specific query.'); return; }
+                    const best = results[0];
+                    const latNum = parseFloat(best.lat), lngNum = parseFloat(best.lon);
+                    selectedLat = latNum; selectedLng = lngNum;
+                    if (!mapMarker) { mapMarker = L.marker([latNum, lngNum], { draggable:true }).addTo(mapInstance); }
+                    else { mapMarker.setLatLng([latNum, lngNum]); }
+                    mapInstance.setView([latNum, lngNum], 16);
+                }catch(err){ console.error('Search error', err); alert('Could not find that place (network/search error).'); }
+            }
+            mapSearchBtn.addEventListener('click', (e)=>{ e.preventDefault(); geocodeSearch(mapSearchInput.value); });
+            mapSearchInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); geocodeSearch(mapSearchInput.value); } });
+
+            // Initial load
+            loadCart();
+            loadAddresses();
+        });
+    </script>
+</body>
+</html>

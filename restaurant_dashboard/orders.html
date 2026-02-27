@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="orders.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <?php include 'shared_header.php'; ?>
+
+    <div class="container">
+        <h1><i class="fas fa-concierge-bell"></i> Order Management</h1>
+        <p>View and manage all customer orders.</p>
+
+        <section class="mt-4 card">
+            <h2>Filter Orders</h2>
+            <div class="form-group">
+                <label for="order-status-filter">Status:</label>
+                <select id="order-status-filter" class="form-control">
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="out_for_delivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <button id="apply-filter-btn" class="btn btn-secondary">Apply Filter</button>
+        </section>
+
+        <section class="mt-4">
+            <h2>Orders List</h2>
+            <div id="orders-list">
+                <!-- Orders will be loaded here by JavaScript -->
+                <p class="text-center" id="no-orders-message">No orders found for the selected filter.</p>
+            </div>
+        </section>
+
+        <!-- Order Detail Modal -->
+        <div id="order-detail-modal" class="modal hidden">
+            <div class="modal-content card">
+                <h2 id="modal-order-id">Order #<span id="detail-order-id"></span></h2>
+                <p><strong>Status:</strong> <span id="detail-order-status"></span></p>
+                <p><strong>Customer:</strong> <span id="detail-customer-name"></span></p>
+                <p><strong>Phone:</strong> <span id="detail-customer-phone"></span></p>
+                <p><strong>Delivery Address:</strong> <span id="detail-delivery-address"></span></p>
+                <p><strong>Payment Method:</strong> <span id="detail-payment-method"></span></p>
+                <p><strong>Total Amount:</strong> <span id="detail-total-amount"></span></p>
+                <p><strong>Special Instructions:</strong> <span id="detail-special-instructions"></span></p>
+
+                <h3 class="mt-3">Items:</h3>
+                <ul id="detail-order-items">
+                    <!-- Order items will be loaded here -->
+                </ul>
+
+                <div class="text-right mt-3">
+                    <button type="button" class="btn btn-secondary" id="close-order-detail-btn">Close</button>
+                    <button type="button" class="btn btn-primary" id="update-order-status-btn" style="display:none;">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box Restaurant. All rights reserved.</p>
+    </footer>
+
+    <script src="js/shared.js" defer></script>
+    <script src="orders.js?v=2" defer></script>
+</body>
+</html>

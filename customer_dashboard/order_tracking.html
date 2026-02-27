@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4ECDC4;
+            --secondary-color: #ff5722;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .tracking-box {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-top: 50px;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .tracking-box h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tracking-box p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .order-id-display {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+
+        .tracking-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align items to the top to allow different heights for descriptions */
+            margin: 40px 0;
+            position: relative;
+            padding: 0 20px; /* Padding for the line to not touch edges */
+        }
+
+        .tracking-timeline::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 5%; /* Start the line after the first circle */
+            right: 5%; /* End the line before the last circle */
+            height: 4px;
+            background-color: var(--bg-dark);
+            z-index: 0;
+        }
+
+        .timeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 5px;
+        }
+
+        .timeline-step .icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--bg-dark);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10px auto;
+            font-size: 1.5em;
+            color: #aaa;
+            border: 2px solid var(--bg-dark);
+            transition: var(--transition);
+        }
+
+        .timeline-step.active .icon {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .timeline-step.completed .icon {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .timeline-step .label {
+            font-weight: 700;
+            color: #777;
+            font-size: 0.95em;
+        }
+
+        .timeline-step.active .label,
+        .timeline-step.completed .label {
+            color: var(--primary-color);
+        }
+
+        .timeline-step .description {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+            min-height: 40px; /* Ensure consistent height for descriptions */
+        }
+
+        .live-status-message {
+            background-color: var(--bg-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        .live-status-message i {
+            margin-right: 10px;
+        }
+
+
+        .action-buttons {
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            text-align: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            background-color: #3aa8a1;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="tracking-box">
+            <h1>Track Your Order</h1>
+            <p>Stay updated on the status of your delicious meal!</p>
+            <div class="order-id-display">Order ID: <span id="display-order-id">#LOADING...</span></div>
+
+            <div class="tracking-timeline" id="tracking-timeline">
+                <div class="timeline-step" data-status="pending">
+                    <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="label">Order Confirmed</div>
+                    <div class="description">Your order has been received.</div>
+                </div>
+                <div class="timeline-step" data-status="preparing">
+                    <div class="icon"><i class="fas fa-utensils"></i></div>
+                    <div class="label">Preparing Food</div>
+                    <div class="description">Our chefs are busy cooking!</div>
+                </div>
+                <div class="timeline-step" data-status="out-for-delivery">
+                    <div class="icon"><i class="fas fa-motorcycle"></i></div>
+                    <div class="label">Out for Delivery</div>
+                    <div class="description">Your food is on its way.</div>
+                </div>
+                <div class="timeline-step" data-status="delivered">
+                    <div class="icon"><i class="fas fa-home"></i></div>
+                    <div class="label">Delivered</div>
+                    <div class="description">Enjoy your meal!</div>
+                </div>
+            </div>
+
+            <div class="live-status-message">
+                <i class="fas fa-info-circle"></i> Current Status: <span id="current-status-text">Order Confirmed</span>
+            </div>
+
+            <div class="action-buttons">
+                <a href="customer_dashboard.html" class="btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+                <a href="order_history.html" class="btn btn-outline"><i class="fas fa-receipt"></i> View Order History</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartItemCountSpan = document.getElementById('cart-item-count');
+            cartItemCountSpan.textContent = 0; // Cart should be empty if coming from a new order
+
+            const displayOrderId = document.getElementById('display-order-id');
+            const currentStatusText = document.getElementById('current-status-text');
+            const timelineSteps = document.querySelectorAll('.timeline-step');
+
+            // Retrieve the order ID from query string
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('orderId') || 'N/A';
+            displayOrderId.textContent = `#${orderId}`;
+
+            const orderStatuses = ['pending', 'preparing', 'out-for-delivery', 'delivered'];
+            let currentStatusIndex = 0; // default start
+
+            function updateTrackingStatus(status) {
+                timelineSteps.forEach(step => {
+                    step.classList.remove('active', 'completed');
+                    const stepStatus = step.getAttribute('data-status');
+                    const statusIndex = orderStatuses.indexOf(stepStatus);
+
+                    if (statusIndex < currentStatusIndex) {
+                        step.classList.add('completed');
+                    } else if (statusIndex === currentStatusIndex) {
+                        step.classList.add('active');
+                    }
+                });
+                currentStatusText.textContent = timelineSteps[currentStatusIndex]?.querySelector('.label')?.textContent || '...';
+            }
+
+            async function fetchAndRenderStatus() {
+                if (!orderId || orderId === 'N/A') return;
+                try {
+                    const resp = await fetch(`/webtechnologies/FoodBox/backend/api/customer/get_order_status.php?order_id=${encodeURIComponent(orderId)}`, { credentials: 'include' });
+                    const data = await resp.json();
+                    if (!resp.ok) {
+                        if (resp.status === 401) {
+                            window.location.href = '../login/login_page.html';
+                            return;
+                        }
+                        console.error('Failed to get status', data);
+                        return;
+                    }
+                    const status = String(data.status || 'pending');
+                    const idx = orderStatuses.indexOf(status);
+                    currentStatusIndex = idx >= 0 ? idx : 0;
+                    updateTrackingStatus(status);
+                } catch (e) {
+                    console.error('Error fetching order status:', e);
+                }
+            }
+
+            // Initial fetch and poll every 12s
+            fetchAndRenderStatus();
+            const pollId = setInterval(fetchAndRenderStatus, 12000);
+            window.addEventListener('beforeunload', () => clearInterval(pollId));
+        });
+    </script>
+</body>
+</html>

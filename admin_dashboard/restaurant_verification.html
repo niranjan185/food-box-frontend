@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Box - Verify Restaurants</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-orange: #ff7f27;
+      --light-orange: #fff3e6;
+      --dark-orange: #e56710;
+    }
+
+    body {
+      background-color: var(--light-orange);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .navbar {
+      background-color: rgb(246, 87, 47);
+      color: #555;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      
+      /* color: white !important; */
+      color:#555;
+      font-size: 1.5rem;
+    }
+
+    .sidebar {
+      background-color: white;
+      border-right: 2px solid #f2f2f2;
+      height: 100vh;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 240px;
+      padding-top: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #555;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background-color: var(--primary-orange);
+      color: white;
+      border-radius: 6px;
+    }
+
+    .content {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .table thead {
+      background-color: var(--primary-orange);
+      color: white;
+    }
+
+    .btn-approve {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-reject {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .status-pending {
+      background-color: #ffc107;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .status-approved {
+      background-color: #28a745;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .status-rejected {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    footer {
+      background-color: white;
+      color: black;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 0;
+      width: calc(100% - 240px);
+      left: 240px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand ms-3" href="#">🍱 Food Box Admin</a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="admin_dashboard.html"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+    <a href="restaurant_verification.html" class="active"><i class="bi bi-shop me-2"></i> Verify Restaurants</a>
+    <a href="customer.html"><i class="bi bi-people me-2"></i> Customers</a>
+    <a href="delivery.html"><i class="bi bi-truck me-2"></i> Delivery Partners</a>
+    <!-- <a href=""><i class="bi bi-bag-check me-2"></i> Orders</a> -->
+    <a href="earnings.html"><i class="bi bi-cash-coin me-2"></i> Earnings</a>
+    <!-- <a href="#"><i class="bi bi-gear me-2"></i> Settings</a> -->
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h3 class="fw-bold text-dark mb-0">Restaurant Verification</h3>
+      <div class="d-flex gap-2 align-items-center">
+        <label for="statusFilter" class="me-2 mb-0">Status:</label>
+        <select id="statusFilter" class="form-select form-select-sm" style="width: 200px;">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="all" selected>All</option>
+        </select>
+        <button id="refreshBtn" class="btn btn-sm btn-outline-secondary ms-2">Refresh</button>
+      </div>
+    </div>
+    <div class="table-responsive shadow-sm">
+      <table class="table table-bordered table-hover align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Restaurant Name</th>
+            <th>Owner</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="restaurantTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Food Box Admin Panel. All rights reserved.
+  </footer>
+
+  <script>
+    async function loadRestaurants(status = 'pending') {
+      const tbody = document.getElementById('restaurantTable');
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>';
+      try {
+        const resp = await fetch(`/webtechnologies/FoodBox/backend/api/admin/list_restaurants.php?status=${encodeURIComponent(status)}`, { credentials: 'include' });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) throw new Error(data.error || 'Failed to load');
+
+        const rows = (data.restaurants || []).map((r, idx) => {
+          const id = r.id;
+          const name = r.restaurant_name || r.name || '-';
+          const owner = r.owner_name || r.owner || '-';
+          const email = r.email || '-';
+          const phone = r.phone || '-';
+          let statusHtml = '<span class="status-pending">Pending</span>';
+          if (typeof r.is_verified !== 'undefined') {
+            if (String(r.is_verified) === '1') statusHtml = '<span class="status-approved">Approved</span>';
+            else if (String(r.is_verified) === '2') statusHtml = '<span class="status-rejected">Rejected</span>';
+          }
+          // Actions: Pending => Approve/Reject; Approved => Deactivate; Rejected => Activate
+          let actionsHtml = '';
+          const isv = String(r.is_verified ?? '0');
+          if (isv === '0') {
+            actionsHtml = `
+              <button class="btn btn-approve btn-sm me-2" data-action="approve">Approve</button>
+              <button class="btn btn-reject btn-sm" data-action="reject">Reject</button>`;
+          } else if (isv === '1') {
+            actionsHtml = `
+              <button class="btn btn-reject btn-sm" data-action="reject">Deactivate</button>`;
+          } else if (isv === '2') {
+            actionsHtml = `
+              <button class="btn btn-approve btn-sm me-2" data-action="approve">Activate</button>`;
+          }
+          return `
+            <tr data-id="${id}">
+              <td>${idx + 1}</td>
+              <td>${name}</td>
+              <td>${owner}</td>
+              <td>${email}</td>
+              <td>${phone}</td>
+              <td>${statusHtml}</td>
+              <td>${actionsHtml}</td>
+            </tr>`;
+        }).join('');
+        tbody.innerHTML = rows || '<tr><td colspan="7" class="text-center text-muted">No restaurants to show.</td></tr>';
+      } catch (e) {
+        console.error('Load restaurants failed', e);
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Failed to load restaurants.</td></tr>';
+      }
+    }
+
+    async function updateRestaurantStatus(id, action) {
+      try {
+        const resp = await fetch('/webtechnologies/FoodBox/backend/api/admin/update_restaurant_status.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ restaurant_id: id, action })
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) throw new Error(data.error || 'Failed');
+        return true;
+      } catch (e) {
+        console.error('Update status failed', e);
+        alert('Unable to update status.');
+        return false;
+      }
+    }
+
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const row = btn.closest('tr');
+      const id = parseInt(row?.dataset?.id || '0', 10);
+      const action = btn.dataset.action; // approve | reject
+      if (!id || !action) return;
+      if (!confirm(`Are you sure you want to ${action} this restaurant?`)) return;
+      const ok = await updateRestaurantStatus(id, action);
+      if (ok) {
+        const current = document.getElementById('statusFilter').value || 'pending';
+        await loadRestaurants(current);
+      }
+    });
+
+    // Filter listeners
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+      loadRestaurants(e.target.value);
+    });
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const current = document.getElementById('statusFilter').value || 'pending';
+      loadRestaurants(current);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => loadRestaurants('all'));
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

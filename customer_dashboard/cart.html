@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4ECDC4;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        .cart-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .cart-grid {
+                grid-template-columns: 2fr 1fr; /* Cart items on left, summary on right */
+            }
+        }
+
+        .cart-items-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        #cart-item-list {
+            margin-bottom: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-details h3 {
+            margin: 0;
+            font-size: 1.3em;
+            color: var(--text-color);
+        }
+
+        .cart-item-details p {
+            margin: 5px 0 0;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--bg-dark);
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .quantity-control button {
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: var(--text-color);
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .quantity-control button:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .quantity-control span {
+            font-weight: 500;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .cart-item-price {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            min-width: 70px;
+            text-align: right;
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .remove-item-btn:hover {
+            opacity: 0.7;
+        }
+
+        .cart-summary-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 1.1em;
+        }
+
+        .summary-row.total {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-top: 2px solid var(--bg-dark);
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+        .promocode-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .promocode-input input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .promocode-input button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .promocode-input button:hover {
+            background-color: #3aa8a1;
+        }
+
+        textarea#special-instructions {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1em;
+            resize: vertical;
+            margin-top: 20px;
+        }
+
+        .checkout-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            text-align: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .btn:hover {
+            background-color: #ff5722;
+        }
+
+        .btn-secondary-outline {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+        .btn-secondary-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
+
+        <div class="cart-grid">
+            <div class="cart-items-section">
+                <h2>Items in Your Cart</h2>
+                <div id="cart-item-list">
+                    <!-- Cart items will be dynamically loaded here -->
+                    <p id="empty-cart-message" style="text-align: center; font-style: italic; color: #777; display: none;">Your cart is empty. <a href="menu.html">Start ordering!</a></p>
+                </div>
+
+                <div class="promocode-input">
+                    <input type="text" id="promocode" placeholder="Enter promocode">
+                    <button id="apply-promocode-btn">Apply</button>
+                </div>
+
+                <label for="special-instructions" style="display: block; margin-top: 20px; font-weight: 500;">Special Instructions:</label>
+                <textarea id="special-instructions" placeholder="e.g., no onions, extra spicy, contactless delivery"></textarea>
+
+            </div>
+
+            <div class="cart-summary-section">
+                <h2>Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal-price">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Fee:</span>
+                    <span id="delivery-fee">₹5.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax (5%):</span>
+                    <span id="tax-amount">₹0.00</span>
+                </div>
+                <div class="summary-row" id="discount-row" style="display: none;">
+                    <span>Discount:</span>
+                    <span id="discount-amount">-₹0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="total-price">₹0.00</span>
+                </div>
+
+                <div class="checkout-buttons">
+                    <a href="payment.html" id="proceed-to-payment-btn" class="btn">Proceed to Payment</a>
+                    <a href="menu.html" class="btn btn-secondary-outline">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Ensure server-driven cart renders on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof loadCartItems === 'function') {
+                loadCartItems();
+            }
+        });
+    </script>
+</body>
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCartItems();
+        
+        const applyPromocodeBtn = document.getElementById('apply-promocode-btn');
+        applyPromocodeBtn.addEventListener('click', applyPromocode);
+    });
+
+    async function loadCartItems() {
+        try {
+            const response = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_cart.php');
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = '../login/login_page.html';
+                    return;
+                }
+                throw new Error(data.error || 'Failed to load cart items');
+            }
+
+            const cartItemList = document.getElementById('cart-item-list');
+            if (!cartItemList) {
+                console.warn('cart_item_list container not found');
+                return;
+            }
+            let emptyCartMessage = document.getElementById('empty-cart-message');
+            if (!emptyCartMessage) {
+                emptyCartMessage = document.createElement('p');
+                emptyCartMessage.id = 'empty-cart-message';
+                emptyCartMessage.style.display = 'none';
+                emptyCartMessage.style.textAlign = 'center';
+                emptyCartMessage.style.fontStyle = 'italic';
+                emptyCartMessage.style.color = '#777';
+                emptyCartMessage.innerHTML = 'Your cart is empty. <a href="menu.html">Start ordering!</a>';
+                cartItemList.appendChild(emptyCartMessage);
+            }
+
+            if (data.cart_items.length === 0) {
+                emptyCartMessage.style.display = 'block';
+                cartItemList.innerHTML = '';
+                updateCartSummary(0);
+                return;
+            }
+
+            if (emptyCartMessage) emptyCartMessage.style.display = 'none';
+            cartItemList.innerHTML = '';
+            let subtotal = 0;
+
+            data.cart_items.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <img src="${item.image_url || 'assets/default-food.jpg'}" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <h3>${item.name}</h3>
+                        <p>From: ${item.restaurant_name}</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="quantity-control">
+                            <button onclick="updateQuantity(${item.cart_id}, ${item.quantity - 1})">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.cart_id}, ${item.quantity + 1})">+</button>
+                        </div>
+                        <span class="cart-item-price">₹${itemTotal.toFixed(2)}</span>
+                        <button onclick="removeItem(${item.cart_id})" class="remove-item-btn">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                cartItemList.appendChild(cartItem);
+            });
+
+            updateCartSummary(subtotal);
+            document.getElementById('cart-item-count').textContent = data.cart_items.length;
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to load cart items. Please try again later.');
+        }
+    }
+
+    async function updateQuantity(cartId, newQuantity) {
+        if (newQuantity < 1) {
+            return removeItem(cartId);
+        }
+
+        try {
+            const response = await fetch('/webtechnologies/FoodBox/backend/api/customer/update_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cart_id: cartId,
+                    quantity: newQuantity
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update cart');
+            }
+
+            loadCartItems(); // Reload cart to reflect changes
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to update quantity. Please try again later.');
+        }
+    }
+
+    async function removeItem(cartId) {
+        if (!confirm('Are you sure you want to remove this item from your cart?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/webtechnologies/FoodBox/backend/api/customer/remove_from_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cart_id: cartId
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to remove item');
+            }
+
+            loadCartItems(); // Reload cart to reflect changes
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to remove item. Please try again later.');
+        }
+    }
+
+    function updateCartSummary(subtotal) {
+        const deliveryFee = subtotal > 0 ? 40 : 0;
+        const tax = subtotal * 0.05; // 5% tax
+        const total = subtotal + deliveryFee + tax;
+
+        document.getElementById('subtotal-price').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('delivery-fee').textContent = `₹${deliveryFee.toFixed(2)}`;
+        document.getElementById('tax-amount').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('total-price').textContent = `₹${total.toFixed(2)}`;
+
+        // Enable/disable checkout button based on cart status
+        const checkoutBtn = document.getElementById('proceed-to-payment-btn');
+        checkoutBtn.disabled = subtotal === 0;
+        checkoutBtn.style.opacity = subtotal === 0 ? '0.6' : '1';
+    }
+
+    async function applyPromocode() {
+        const promocode = document.getElementById('promocode').value.trim();
+        // You can implement promocode validation with backend API here
+        alert('Promocode functionality will be implemented soon!');
+    }
+</script>

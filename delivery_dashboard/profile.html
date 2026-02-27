@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Delivery Driver</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #343a40;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        #sidebar.active {
+            margin-left: -250px;
+        }
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #ff5722;
+        }
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid #47748b;
+        }
+        #sidebar ul li a {
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
+            color: #e0e0e0;
+        }
+        #sidebar ul li a:hover {
+            color: #fff;
+            background: #ff5722;
+            text-decoration: none;
+        }
+        #content {
+            width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .profile-img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 3px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>Delivery Driver</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="delivery_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="assigned_orders.html"><i class="fas fa-clipboard-list"></i> Assigned Orders</a>
+                </li>
+                <li>
+                    <a href="delivery_history.html"><i class="fas fa-history"></i> Delivery History</a>
+                </li>
+                <li>
+                    <a href="earnings.html"><i class="fas fa-money-bill-wave"></i> Earnings</a>
+                </li>
+                <li class="active">
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                </li>
+                <li>
+                    <a href="/webtechnologies/FoodBox/backend/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                        <span>Toggle Sidebar</span>
+                    </button>
+                    <div class="ml-auto">
+                        <h4>Welcome, <span id="welcome-name">Driver</span>!</h4>
+                    </div>
+                </div>
+            </nav>
+
+            <h2>Driver Profile</h2>
+            <p class="lead">View and update your personal and vehicle information.</p>
+
+            <div class="row mt-4">
+                <div class="col-md-4 text-center">
+                    <h5 id="profile-name" style="margin-top: 20px;">Driver Name</h5>
+                    <p class="text-muted">ID: <span id="profile-id">DRV-001</span></p>
+                </div>
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            Personal Information
+                        </div>
+                        <div class="card-body">
+                            <form id="personal-form">
+                                <div class="form-group row">
+                                    <label for="fullName" class="col-sm-3 col-form-label">Full Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" readonly class="form-control-plaintext" id="fullName" value="John Driver">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                    <div class="col-sm-9">
+                                        <input type="email" readonly class="form-control-plaintext" id="email" value="john.driver@example.com">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="phone" class="col-sm-3 col-form-label">Phone</label>
+                                    <div class="col-sm-9">
+                                        <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="address" class="col-sm-3 col-form-label">Address</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="address" value="123 Delivery Lane, City, State, 12345">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="save-personal-btn"><i class="fas fa-save"></i> Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            Vehicle Information
+                        </div>
+                        <div class="card-body">
+                            <form id="vehicle-form">
+                                <div class="form-group row">
+                                    <label for="vehicleType" class="col-sm-3 col-form-label">Vehicle Type</label>
+                                    <div class="col-sm-9">
+                                        <select id="vehicleType" class="form-control">
+                                            <option value="bike">Bike</option>
+                                            <option value="scooter">Scooter</option>
+                                            <option value="bicycle">Bicycle</option>
+                                            <option value="car">Car</option>
+                                            <option value="van">Van</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="vehicleMake" class="col-sm-3 col-form-label">Make</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="vehicleMake" value="Toyota">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="vehicleModel" class="col-sm-3 col-form-label">Model</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="vehicleModel" value="Camry">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="licensePlate" class="col-sm-3 col-form-label">License Plate</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="licensePlate" value="ABC-123">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="save-vehicle-btn"><i class="fas fa-save"></i> Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+
+        // Vanilla JS for profile load/save
+        document.addEventListener('DOMContentLoaded', async () => {
+            const welcomeName = document.getElementById('welcome-name');
+            const profileName = document.getElementById('profile-name');
+            const profileId = document.getElementById('profile-id');
+            const fullName = document.getElementById('fullName');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            const address = document.getElementById('address');
+            const vehicleMake = document.getElementById('vehicleMake');
+            const vehicleModel = document.getElementById('vehicleModel');
+            const licensePlate = document.getElementById('licensePlate');
+            const vehicleType = document.getElementById('vehicleType');
+
+            async function loadProfile() {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/get_profile.php', { credentials: 'include' });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        throw new Error(data.error || 'Failed to load profile');
+                    }
+                    const p = data.profile || {};
+                    welcomeName.textContent = p.full_name || 'Driver';
+                    profileName.textContent = p.full_name || 'Driver Name';
+                    profileId.textContent = p.id ? ('DRV-' + String(p.id).padStart(3,'0')) : 'DRV-000';
+                    fullName.value = p.full_name || '';
+                    email.value = p.email || '';
+                    phone.value = p.phone || '';
+                    address.value = p.address || '';
+                    // Optional vehicle fields
+                    if (p.vehicle_type !== undefined && p.vehicle_type) vehicleType.value = String(p.vehicle_type);
+                    if (p.vehicle_make !== undefined) vehicleMake.value = p.vehicle_make || '';
+                    if (p.vehicle_model !== undefined) vehicleModel.value = p.vehicle_model || '';
+                    if (p.license_plate !== undefined) licensePlate.value = p.license_plate || '';
+                } catch (e) {
+                    console.error(e);
+                    alert('Could not load profile.');
+                }
+            }
+
+            async function saveProfile(payload) {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/update_profile.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                    throw new Error(data.error || 'Failed to save');
+                }
+            }
+
+            document.getElementById('personal-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await saveProfile({ phone: phone.value.trim(), address: address.value.trim() });
+                    alert('Personal details saved.');
+                    loadProfile();
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to save personal details.');
+                }
+            });
+
+            document.getElementById('vehicle-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await saveProfile({
+                        vehicle_type: vehicleType.value,
+                        vehicle_make: vehicleMake.value.trim(),
+                        vehicle_model: vehicleModel.value.trim(),
+                        license_plate: licensePlate.value.trim()
+                    });
+                    alert('Vehicle details saved.');
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to save vehicle details.');
+                }
+            });
+
+            loadProfile();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assigned Orders - Delivery Driver</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #343a40;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        #sidebar.active {
+            margin-left: -250px;
+        }
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #343a40;
+        }
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid #47748b;
+        }
+        #sidebar ul li a {
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
+            color: #e0e0e0;
+        }
+        #sidebar ul li a:hover {
+            color: #fff;
+            background: #ff5722;
+            text-decoration: none;
+        }
+        #content {
+            width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .order-card {
+            margin-bottom: 20px;
+        }
+        .order-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Map pin styles for clear differentiation */
+        .pin {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.4);
+        }
+        .pin--restaurant { background: #e74c3c; }
+        .pin--customer { background: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>Delivery Driver</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="delivery_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="active">
+                    <a href="assigned_orders.html"><i class="fas fa-clipboard-list"></i> Assigned Orders</a>
+                </li>
+                <li>
+                    <a href="delivery_history.html"><i class="fas fa-history"></i> Delivery History</a>
+                </li>
+                <li>
+                    <a href="earnings.html"><i class="fas fa-money-bill-wave"></i> Earnings</a>
+                </li>
+                <li>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                </li>
+                <li>
+                    <a href="/webtechnologies/FoodBox/backend/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                        <span>Toggle Sidebar</span>
+                    </button>
+                    <div class="ml-auto">
+                        <h4>Welcome, Driver Name!</h4>
+                    </div>
+                </div>
+            </nav>
+
+            <h2>Assigned Orders</h2>
+            <p class="lead">View and manage your current delivery tasks.</p>
+
+            <h3 class="mt-4">Assigned Orders</h3>
+            <div class="row" id="assigned-orders-container">
+                <!-- Cards rendered dynamically -->
+                <div class="col-12" id="noOrdersMessage" style="display: none;">
+                    <div class="alert alert-info" role="alert">
+                        No new orders assigned at the moment. Check back soon!
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-5">Available Orders</h3>
+            <div class="row" id="available-orders-container">
+                <!-- Available orders rendered dynamically -->
+                <div class="col-12" id="noAvailableMsg" style="display:none;">
+                    <div class="alert alert-secondary">No available orders to accept right now.</div>
+                </div>
+            </div>
+
+            <!-- Map Modal -->
+            <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-route"></i> Delivery Route</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div id="map" style="height: 500px; width: 100%; border-radius: 10px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+    
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+            // Example: Hide/Show no orders message (would be dynamic in a real app)
+            // if ($('.order-card').length === 0) {
+            //     $('#noOrdersMessage').show();
+            // }
+        });
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+
+        // Load orders on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssignedOrders();
+            loadAvailableOrders();
+        });
+
+        async function loadAssignedOrders() {
+            const container = document.getElementById('assigned-orders-container');
+            const emptyMsg = document.getElementById('noOrdersMessage');
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/get_assigned_orders.php', { credentials: 'include' });
+                const data = await resp.json();
+                container.querySelectorAll('.order-card-wrapper').forEach(n => n.remove());
+                if (resp.ok && data.success && data.orders && data.orders.length) {
+                    emptyMsg.style.display = 'none';
+                    data.orders.forEach(order => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6 order-card-wrapper';
+                        const badgeClass = order.status === 'out_for_delivery' ? 'badge-primary'
+                            : (order.status === 'preparing' || order.status === 'ready') ? 'badge-warning' : 'badge-secondary';
+                        const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.name}`).join(', ');
+                        const actionBtn = renderActionButton(order);
+                        col.innerHTML = `
+                            <div class="card order-card">
+                                <div class="card-header ${order.status === 'out_for_delivery' ? 'bg-info' : 'bg-warning'} text-white">
+                                    Order #${order.id}
+                                    <span class="badge ${badgeClass}">${order.status.replace(/_/g,' ')}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Pickup: ${order.restaurant_name}</h5>
+                                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${order.pickup_address || ''}</p>
+                                    <p class="card-text"><strong>Customer:</strong> ${order.customer_name}</p>
+                                    <p class="card-text"><i class="fas fa-home"></i> ${order.delivery_address}</p>
+                                    <p class="card-text"><strong>Items:</strong> ${itemsText}</p>
+                                    <p class="card-text"><strong>Payment:</strong> ${order.payment_method || 'N/A'}</p>
+                                    <div class="mt-3">
+                                        ${actionBtn}
+                                        <button class="btn btn-primary btn-directions"
+                                            data-pickup-address="${(order.pickup_address || '').replace(/"/g,'&quot;')}"
+                                            data-drop-address="${(order.delivery_address || '').replace(/"/g,'&quot;')}"
+                                            data-restaurant="${(order.restaurant_name || '').replace(/"/g,'&quot;')}"
+                                            data-pickup-lat="${order.pickup_lat ?? ''}"
+                                            data-pickup-lng="${order.pickup_lng ?? ''}"
+                                            data-drop-lat="${order.delivery_lat ?? ''}"
+                                            data-drop-lng="${order.delivery_lng ?? ''}"
+                                            data-order-id="${order.id}">
+                                            <i class="fas fa-route"></i> Directions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        container.appendChild(col);
+                    });
+                } else if (resp.status === 401) {
+                    emptyMsg.style.display = 'block';
+                    emptyMsg.querySelector('.alert').textContent = 'Please log in as delivery driver.';
+                } else {
+                    emptyMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Failed to load assigned orders:', err);
+                emptyMsg.style.display = 'block';
+            }
+        }
+
+        async function loadAvailableOrders() {
+            const container = document.getElementById('available-orders-container');
+            const emptyMsg = document.getElementById('noAvailableMsg');
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/get_available_orders.php', { credentials: 'include' });
+                const data = await resp.json();
+                container.querySelectorAll('.available-card-wrapper').forEach(n => n.remove());
+                if (resp.ok && data.success && Array.isArray(data.orders) && data.orders.length) {
+                    emptyMsg.style.display = 'none';
+                    data.orders.forEach(order => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6 available-card-wrapper';
+                        const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.name}`).join(', ');
+                        col.innerHTML = `
+                            <div class="card order-card border-info">
+                                <div class="card-header bg-light">
+                                    <strong>Order #${order.id}</strong> <span class="badge badge-info">Available</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Pickup: ${order.restaurant_name || ''}</h5>
+                                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${order.pickup_address || ''}</p>
+                                    <p class="card-text"><strong>Customer:</strong> ${order.customer_name || ''}</p>
+                                    <p class="card-text"><strong>Payment:</strong> ${order.payment_method || 'COD'}</p>
+                                    ${itemsText ? `<p class=\"card-text\"><strong>Items:</strong> ${itemsText}</p>` : ''}
+                                    <div class="mt-3">
+                                        <button class="btn btn-outline-success accept-order" data-order-id="${order.id}"><i class="fas fa-hand-paper"></i> Accept</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        container.appendChild(col);
+                    });
+                } else if (resp.status === 401) {
+                    emptyMsg.style.display = 'block';
+                    emptyMsg.querySelector('.alert')?.remove();
+                    const div = document.createElement('div');
+                    div.className = 'alert alert-warning';
+                    div.textContent = 'Please log in as delivery driver.';
+                    emptyMsg.appendChild(div);
+                } else {
+                    emptyMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Failed to load available orders:', err);
+                emptyMsg.style.display = 'block';
+            }
+        }
+
+        function renderActionButton(order) {
+            if (order.status === 'preparing' || order.status === 'ready') {
+                return `<button class="btn btn-success delivery-action" data-order-id="${order.id}" data-action="out_for_delivery"><i class="fas fa-check"></i> Picked Up</button>`;
+            }
+            if (order.status === 'out_for_delivery') {
+                return `<button class="btn btn-success delivery-action" data-order-id="${order.id}" data-action="delivered"><i class="fas fa-check"></i> Delivered</button>`;
+            }
+            return '';
+        }
+
+        // Delivery action handlers
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.delivery-action');
+            if (!btn) return;
+            const orderId = parseInt(btn.dataset.orderId, 10);
+            const action = btn.dataset.action; // 'out_for_delivery' | 'delivered'
+            if (!orderId || !action) return;
+
+            const confirmMsg = action === 'out_for_delivery'
+                ? `Mark order #${orderId} as picked up (out for delivery)?`
+                : `Confirm order #${orderId} delivered?`;
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/update_order_status.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, status: action }),
+                    credentials: 'include'
+                });
+                const data = await resp.json();
+                if (resp.ok && data.success) {
+                    alert('Status updated.');
+                    loadAssignedOrders();
+                } else if (resp.status === 401) {
+                    alert('Please log in as delivery driver.');
+                } else {
+                    alert(`Failed: ${data.error || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error('Delivery update error:', err);
+                alert('Network/server error while updating status.');
+            }
+        });
+
+        // Accept order handler
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.accept-order');
+            if (!btn) return;
+            const orderId = parseInt(btn.dataset.orderId, 10);
+            if (!orderId) return;
+            if (!confirm(`Accept order #${orderId}?`)) return;
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/delivery/accept_order.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const data = await resp.json();
+                if (resp.ok && data.success) {
+                    // Reload both lists
+                    await loadAvailableOrders();
+                    await loadAssignedOrders();
+                } else {
+                    alert(data.error || 'Failed to accept order');
+                }
+            } catch (err) {
+                console.error('Accept order error:', err);
+                alert('Network/server error while accepting order.');
+            }
+        });
+        async function geocodeAddress(address) {
+            if (!address) throw new Error('Empty address');
+            const cache = loadGeoCache();
+            if (cache[address]) {
+                return [cache[address].lat, cache[address].lng];
+            }
+            const base = 'https://nominatim.openstreetmap.org/search';
+            const params = new URLSearchParams();
+            params.set('format', 'json');
+            params.set('limit', '1');
+            params.set('q', address);
+            if (typeof NOMINATIM_CONTACT_EMAIL !== 'undefined' && NOMINATIM_CONTACT_EMAIL) params.set('email', NOMINATIM_CONTACT_EMAIL);
+            if (typeof NOMINATIM_COUNTRY_CODES !== 'undefined' && NOMINATIM_COUNTRY_CODES) params.set('countrycodes', NOMINATIM_COUNTRY_CODES);
+            const url = `${base}?${params.toString()}`;
+            const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (!resp.ok) throw new Error('Geocode failed');
+            const results = await resp.json();
+            if (!Array.isArray(results) || results.length === 0) throw new Error('No results');
+            const { lat, lon } = results[0];
+            const latNum = parseFloat(lat), lngNum = parseFloat(lon);
+            cache[address] = { lat: latNum, lng: lngNum, t: Date.now() };
+            saveGeoCache(cache);
+            return [latNum, lngNum];
+        }
+        async function geocodeWithPrompt(label, initialAddress) {
+            let addr = initialAddress;
+            for (let i = 0; i < 2; i++) {
+                try { return await geocodeAddress(addr); } catch {}
+                const next = prompt(`Could not locate ${label}. Please edit the address:`, addr || '');
+                if (!next) throw new Error('User cancelled');
+                addr = next.trim();
+            }
+            // last attempt
+            return await geocodeAddress(addr);
+        }
+
+        // Promise wrapper for geolocation
+        function getDriverLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) return resolve(null);
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve([pos.coords.latitude, pos.coords.longitude]),
+                    () => resolve(null),
+                    { enableHighAccuracy: true, timeout: 7000 }
+                );
+            });
+        }
+
+        // Directions button handler
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.btn-directions');
+            if (!btn) return;
+            const pickupAddress = (btn.dataset.pickupAddress || '').trim();
+            const dropAddress = (btn.dataset.dropAddress || '').trim();
+            const pLat = parseFloat(btn.dataset.pickupLat);
+            const pLng = parseFloat(btn.dataset.pickupLng);
+            const dLat = parseFloat(btn.dataset.dropLat);
+            const dLng = parseFloat(btn.dataset.dropLng);
+
+            if (!pickupAddress) {
+                alert('Restaurant address is missing for this order.');
+                return;
+            }
+            if (!dropAddress) {
+                alert('Customer address is missing for this order.');
+                return;
+            }
+
+            try {
+                const driverLatLngPromise = getDriverLocation();
+                let pickupLatLng, dropLatLng;
+                if (!Number.isNaN(pLat) && !Number.isNaN(pLng) && !Number.isNaN(dLat) && !Number.isNaN(dLng)) {
+                    pickupLatLng = [pLat, pLng];
+                    dropLatLng = [dLat, dLng];
+                } else {
+                    // Fallback to geocoding with user prompt if coords are missing
+                    pickupLatLng = await geocodeWithPrompt('the restaurant location', pickupAddress);
+                    dropLatLng = await geocodeWithPrompt('the customer location', dropAddress);
+                }
+                const driverLatLng = await driverLatLngPromise;
+                // Keep current order id globally for location updates
+                window.__currentOrderId = parseInt(btn.dataset.orderId || '0', 10) || null;
+
+                // Fallback for driver: use pickup as start if location not available
+                const startLatLng = driverLatLng || pickupLatLng;
+
+                // Open modal
+                $('#mapModal').modal('show');
+
+                setTimeout(() => {
+                    // Keep global refs so we can update/cleanup
+                    window.__deliveryMap = L.map('map').setView(startLatLng, 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(window.__deliveryMap);
+
+                    // Route: Driver -> Restaurant -> Customer via free OSRM public router
+                    window.__deliveryRoute = L.Routing.control({
+                        router: L.Routing.osrmv1({
+                            // Use FOSSGIS public OSRM to avoid demo server warning
+                            serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
+                        }),
+                        waypoints: [
+                            L.latLng(startLatLng),
+                            L.latLng(pickupLatLng),
+                            L.latLng(dropLatLng)
+                        ],
+                        routeWhileDragging: false
+                    }).addTo(window.__deliveryMap);
+
+                    // Custom icons for clarity (CSS-based to avoid asset issues)
+                    const restaurantIcon = L.divIcon({
+                        className: '',
+                        html: '<div class="pin pin--restaurant"></div>',
+                        iconSize: [24,24], iconAnchor: [12,12]
+                    });
+                    const customerIcon = L.divIcon({
+                        className: '',
+                        html: '<div class="pin pin--customer"></div>',
+                        iconSize: [24,24], iconAnchor: [12,12]
+                    });
+
+                    // Driver marker (will update in real-time below)
+                    window.__driverMarker = L.marker(startLatLng).addTo(window.__deliveryMap).bindPopup('You (Driver)');
+                    L.marker(pickupLatLng, { icon: restaurantIcon }).addTo(window.__deliveryMap).bindPopup('Pickup: Restaurant');
+                    L.marker(dropLatLng, { icon: customerIcon }).addTo(window.__deliveryMap).bindPopup('Drop: Customer');
+
+                    // Start real-time watch to update driver marker and route start
+                    if (navigator.geolocation) {
+                        window.__driverWatchId = navigator.geolocation.watchPosition((pos) => {
+                            const next = [pos.coords.latitude, pos.coords.longitude];
+                            if (window.__driverMarker) {
+                                window.__driverMarker.setLatLng(next);
+                            }
+                            if (window.__deliveryRoute) {
+                                const wps = window.__deliveryRoute.getWaypoints();
+                                // waypoints: [driver, pickup, drop]
+                                wps[0].latLng = L.latLng(next);
+                                window.__deliveryRoute.setWaypoints(wps.map(w => w.latLng));
+                            }
+                            // Throttled backend update
+                            const now = Date.now();
+                            if (!window.__lastLocSentAt || (now - window.__lastLocSentAt) > 5000) {
+                                window.__lastLocSentAt = now;
+                                try {
+                                    const payload = {
+                                        lat: pos.coords.latitude,
+                                        lng: pos.coords.longitude,
+                                        accuracy: pos.coords.accuracy,
+                                        heading: (typeof pos.coords.heading === 'number' ? pos.coords.heading : null),
+                                        speed: (typeof pos.coords.speed === 'number' ? pos.coords.speed : null),
+                                        order_id: window.__currentOrderId
+                                    };
+                                    fetch('/webtechnologies/FoodBox/backend/api/delivery/update_location.php', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        credentials: 'include',
+                                        body: JSON.stringify(payload)
+                                    }).catch(()=>{});
+                                } catch {}
+                            }
+                        }, () => { /* ignore errors for now */ }, { enableHighAccuracy: true, maximumAge: 2000, timeout: 7000 });
+                    }
+                }, 300); // delay for modal render
+
+            } catch (err) {
+                console.error('Directions error:', err);
+                if (String(err && err.message || err).toLowerCase().includes('cancelled')) return;
+                alert('Unable to plot directions. Please check addresses or try again.');
+            }
+        });
+
+        // Cleanup on modal close: stop watch and destroy map
+        $(document).on('hidden.bs.modal', '#mapModal', function() {
+            if (window.__driverWatchId && navigator.geolocation) {
+                navigator.geolocation.clearWatch(window.__driverWatchId);
+                window.__driverWatchId = null;
+            }
+            if (window.__deliveryMap) {
+                window.__deliveryMap.remove();
+                window.__deliveryMap = null;
+            }
+            window.__deliveryRoute = null;
+            window.__driverMarker = null;
+            window.__currentOrderId = null;
+            window.__lastLocSentAt = null;
+        });
+        $(document).on('shown.bs.modal', '#mapModal', function() {
+            if (window.__deliveryMap) {
+                setTimeout(function(){ window.__deliveryMap.invalidateSize(); }, 50);
+            }
+        });
+    </script>
+</body>
+</html>

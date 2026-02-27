@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Tickets - Restaurant Dashboard</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    body { background:#f8f9fc; }
+    .container { max-width: 1100px; }
+    .card { border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,.05); }
+    .badge-status { text-transform: capitalize; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-light bg-white shadow-sm">
+    <a class="navbar-brand" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back</a>
+    <span class="navbar-text font-weight-bold">Support Tickets</span>
+  </nav>
+
+  <main class="container py-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <form id="filters" class="form-inline">
+          <label class="mr-2">Status</label>
+          <select id="status" class="form-control mr-3">
+            <option value="">All</option>
+            <option>open</option>
+            <option>in_progress</option>
+            <option>resolved</option>
+            <option>closed</option>
+          </select>
+          <input id="q" type="text" class="form-control mr-2" placeholder="Search topic/message" style="width:280px;">
+          <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table mb-0 table-striped">
+          <thead class="thead-light">
+            <tr>
+              <th>ID</th>
+              <th>Created</th>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Topic</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="7" class="text-center py-4 text-muted">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <nav class="mt-3">
+      <ul class="pagination" id="pager"></ul>
+    </nav>
+  </main>
+
+  <script>
+    const rowsEl = document.getElementById('rows');
+    const pagerEl = document.getElementById('pager');
+    const filtersEl = document.getElementById('filters');
+
+    filtersEl.addEventListener('submit', (e)=>{ e.preventDefault(); load(1); });
+
+    async function load(page=1){
+      rowsEl.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Loading...</td></tr>';
+      pagerEl.innerHTML = '';
+      const status = document.getElementById('status').value;
+      const q = document.getElementById('q').value.trim();
+      const params = new URLSearchParams({ page:String(page), limit:'25' });
+      if (status) params.set('status', status);
+      if (q) params.set('q', q);
+      try {
+        const resp = await fetch('/webtechnologies/FoodBox/backend/api/support/list_for_restaurant.php?'+params.toString(), { credentials:'include' });
+        const raw = await resp.text();
+        let data; try { data = JSON.parse(raw); } catch { data = null; }
+        if (!resp.ok || !data?.success) throw new Error((data && (data.error_detail || data.error)) || raw || 'Error');
+        const tickets = data.tickets || [];
+        if (tickets.length === 0){ rowsEl.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No tickets found.</td></tr>'; return; }
+        rowsEl.innerHTML = '';
+        tickets.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>#${t.id}</td>
+            <td>${t.created_at || ''}</td>
+            <td>${t.order_id || ''}</td>
+            <td>${t.customer_name || t.customer_id || ''}</td>
+            <td><strong>${escapeHtml(t.topic || '')}</strong><br><small class="text-muted">${escapeHtml((t.message || '').slice(0, 120))}${(t.message||'').length>120?'…':''}</small></td>
+            <td><span class="badge badge-status badge-${statusClass(t.status)}">${t.status}</span></td>
+            <td>
+              ${actionButtons(t)}
+            </td>
+          `;
+          rowsEl.appendChild(tr);
+        });
+      } catch (e){
+        rowsEl.innerHTML = `<tr><td colspan="7" class="text-danger text-center">${e.message}</td></tr>`;
+      }
+    }
+
+    function statusClass(s){
+      switch(String(s||'open')){
+        case 'open': return 'warning';
+        case 'in_progress': return 'info';
+        case 'resolved': return 'success';
+        case 'closed': return 'secondary';
+        default: return 'light';
+      }
+    }
+
+    function actionButtons(t){
+      const states = ['open','in_progress','resolved','closed'];
+      return states.map(s => `
+        <button class="btn btn-sm btn-outline-${statusClass(s)} mr-1" data-action="set" data-id="${t.id}" data-status="${s}">${s.replace('_',' ')}</button>
+      `).join('');
+    }
+
+    document.addEventListener('click', async (e)=>{
+      const b = e.target.closest('button[data-action="set"]');
+      if (!b) return;
+      const id = parseInt(b.dataset.id,10);
+      const status = b.dataset.status;
+      b.disabled = true;
+      try {
+        const resp = await fetch('/webtechnologies/FoodBox/backend/api/support/update_status.php', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          body: JSON.stringify({ ticket_id: id, status })
+        });
+        const raw = await resp.text();
+        let data; try { data = JSON.parse(raw); } catch { data = null; }
+        if (!resp.ok || !data?.success) throw new Error((data && (data.error_detail || data.error)) || raw || 'Error');
+        load(1);
+      } catch (err) {
+        alert('Failed to update: '+err.message);
+      } finally { b.disabled = false; }
+    });
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c])); }
+
+    document.addEventListener('DOMContentLoaded', ()=> load(1));
+  </script>
+</body>
+</html>

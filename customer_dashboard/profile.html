@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4ECDC4;
+            --secondary-color: #ff5722;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .profile-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 50px;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .profile-section h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .profile-category {
+            margin-bottom: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            background-color: var(--bg-light);
+            position: relative;
+        }
+
+        .profile-category h2 {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-category .edit-btn,
+        .profile-category .add-btn {
+            position: absolute;
+            top: 5px;
+            right: 3px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: var(--transition);
+        }
+
+        .profile-category .edit-btn:hover,
+        .profile-category .add-btn:hover {
+            background-color: #3aa8a1;
+        }
+
+        .profile-info p {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #555;
+        }
+        .profile-info p strong {
+            color: var(--text-color);
+            min-width: 120px;
+            display: inline-block;
+        }
+
+        .address-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .address-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .address-item.default {
+            border-left: 5px solid var(--primary-color);
+            padding-left: 10px;
+        }
+        .address-item.default::before {
+            content: 'Default';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .address-item p {
+            margin: 0;
+            font-size: 1em;
+            color: #555;
+        }
+        .address-item .address-type {
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .address-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .address-actions button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .address-actions button:hover {
+            color: #3aa8a1;
+            text-decoration: underline;
+        }
+        .address-actions button.delete {
+            color: var(--secondary-color);
+        }
+        .address-actions button.delete:hover {
+            color: #e65a5a;
+        }
+
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            transition: var(--transition);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .btn-group .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .btn-group .btn:hover {
+            background-color: #3aa8a1;
+        }
+        .btn-group .btn-cancel {
+            background-color: #ccc;
+        }
+        .btn-group .btn-cancel:hover {
+            background-color: #bbb;
+        }
+
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="order_history.html">Orders</a>
+                <a href="profile.html">Profile</a> <!-- Link to this page -->
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+
+            <!-- Change Password Section (Initially Hidden) -->
+            <div class="profile-category" id="password-section" style="display: none;">
+                <h2><i class="fas fa-key"></i> Change Password</h2>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" required>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-cancel" id="cancel-password">Cancel</button>
+                        <button type="submit" class="btn">Save Password</button>
+                    </div>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="profile-section">
+            <h1>My Profile</h1>
+
+            <!-- Personal Information Section -->
+            <div class="profile-category" id="personal-info-display">
+                <h2><i class="fas fa-user"></i> Personal Information</h2>
+                <button class="edit-btn" onclick="editPersonalInfo()">Edit</button>
+                <div class="profile-info">
+                    <p><strong>Name:</strong> <span id="display-name">John Doe</span></p>
+                    <p><strong>Email:</strong> <span id="display-email">john.doe@example.com</span></p>
+                    <p><strong>Phone:</strong> <span id="display-phone">+1 (555) 123-4567</span></p>
+                    <p><a href="#" id="open-password-section">Change Password</a></p>
+                </div>
+            </div>
+
+            <!-- Personal Information Edit Form (Initially Hidden) -->
+            <div class="profile-category" id="personal-info-edit" style="display: none;">
+                <h2><i class="fas fa-user-edit"></i> Edit Personal Information</h2>
+                <form id="personal-info-form">
+                    <div class="form-group">
+                        <label for="edit-first-name">First Name</label>
+                        <input type="text" id="edit-first-name" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-last-name">Last Name</label>
+                        <input type="text" id="edit-last-name" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input type="email" id="edit-email" name="email"> <!-- Optional: only saved if supported -->
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-phone">Phone Number</label>
+                        <input type="tel" id="edit-phone" name="phone">
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-cancel" onclick="cancelEditPersonalInfo()">Cancel</button>
+                        <button type="submit" class="btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Delivery Addresses Section -->
+            <div class="profile-category">
+                <h2><i class="fas fa-map-marker-alt"></i> Delivery Addresses</h2>
+                <button class="add-btn" onclick="showAddAddressForm()">Add New Address</button>
+                <ul class="address-list" id="address-list">
+                    <!-- Addresses will be dynamically loaded here -->
+                </ul>
+                <div id="no-addresses-message" style="text-align: center; color: #777; margin-top: 20px; display: none;">
+                    <p>No delivery addresses saved yet.</p>
+                </div>
+            </div>
+
+            <!-- Add/Edit Address Form (Initially Hidden) -->
+            <div class="profile-category" id="address-form-section" style="display: none;">
+                <h2><i class="fas fa-plus-circle"></i> <span id="address-form-title">Add New Address</span></h2>
+                <form id="address-form">
+                    <input type="hidden" id="address-id"> <!-- For editing existing addresses -->
+                    <div class="form-group">
+                        <label for="address-type">Address Label (e.g., Home, Work)</label>
+                        <input type="text" id="address-type" name="type" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="street-address">Street Address</label>
+                        <input type="text" id="street-address" name="street" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apartment-suite">Apartment/Suite/Unit (Optional)</label>
+                        <input type="text" id="apartment-suite" name="apartment">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State/Province</label>
+                        <input type="text" id="state" name="state" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="zip-code">Zip/Postal Code</label>
+                        <input type="text" id="zip-code" name="zipCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" id="country" name="country" value="USA" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="set-default-address">
+                        <label for="set-default-address" style="display: inline; margin-left: 5px;">Set as default address</label>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-cancel" onclick="cancelAddressForm()">Cancel</button>
+                        <button type="submit" class="btn">Save Address</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartItemCountSpan = document.getElementById('cart-item-count');
+            cartItemCountSpan.textContent = 0; // Cart should be empty if on profile page
+
+            const personalInfoDisplay = document.getElementById('personal-info-display');
+            const personalInfoEdit = document.getElementById('personal-info-edit');
+            const personalInfoForm = document.getElementById('personal-info-form');
+
+            const displayName = document.getElementById('display-name');
+            const displayEmail = document.getElementById('display-email');
+            const displayPhone = document.getElementById('display-phone');
+
+            const editFirstName = document.getElementById('edit-first-name');
+            const editLastName = document.getElementById('edit-last-name');
+            const editEmail = document.getElementById('edit-email');
+            const editPhone = document.getElementById('edit-phone');
+
+            const addressList = document.getElementById('address-list');
+            const noAddressesMessage = document.getElementById('no-addresses-message');
+            const addressFormSection = document.getElementById('address-form-section');
+            const addressFormTitle = document.getElementById('address-form-title');
+            const addressForm = document.getElementById('address-form');
+
+            // Load profile from backend
+            async function loadPersonalInfo() {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_profile.php', { credentials: 'include' });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        throw new Error(data.error || 'Failed to load profile');
+                    }
+                    const p = data.profile || {};
+                    const full = (p.full_name || '').trim();
+                    const parts = full.split(' ');
+                    const first = parts.shift() || '';
+                    const last = parts.join(' ') || '';
+
+                    displayName.textContent = full || '—';
+                    displayEmail.textContent = p.email || '—';
+                    displayPhone.textContent = p.phone || '—';
+
+                    editFirstName.value = first;
+                    editLastName.value = last;
+                    editEmail.value = p.email || '';
+                    editPhone.value = p.phone || '';
+                } catch (e) {
+                    console.error('Profile load error:', e);
+                    alert('Failed to load profile.');
+                }
+            }
+
+            async function loadAddresses() {
+                addressList.innerHTML = '';
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/addresses/list.php', { credentials: 'include' });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        throw new Error((data && (data.error_detail || data.error)) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to load addresses');
+                    }
+                    const addresses = data.addresses || [];
+                    if (addresses.length === 0) {
+                        noAddressesMessage.style.display = 'block';
+                        return;
+                    }
+                    noAddressesMessage.style.display = 'none';
+                    addresses.forEach(addr => {
+                        const li = document.createElement('li');
+                        li.className = 'address-item' + (addr.is_default ? ' default' : '');
+                        li.innerHTML = `
+                            <p class="address-type">${addr.label}</p>
+                            <p>${addr.street}${addr.apartment ? ', ' + addr.apartment : ''}</p>
+                            <p>${addr.city}, ${addr.state} ${addr.zip_code}</p>
+                            <p>${addr.country}</p>
+                            <div class="address-actions">
+                                <button data-action="edit">Edit</button>
+                                <button data-action="delete" class="delete">Delete</button>
+                                ${!addr.is_default ? `<button data-action="set-default">Set as Default</button>` : ''}
+                            </div>
+                        `;
+                        // Attach handlers
+                        li.querySelector('[data-action="edit"]').addEventListener('click', () => editAddress(addr));
+                        li.querySelector('[data-action="delete"]').addEventListener('click', () => deleteAddress(addr.id));
+                        const sd = li.querySelector('[data-action="set-default"]');
+                        if (sd) sd.addEventListener('click', () => setDefaultAddress(addr.id));
+                        addressList.appendChild(li);
+                    });
+                } catch (e) {
+                    console.error('Load addresses error:', e);
+                    noAddressesMessage.style.display = 'block';
+                }
+            }
+
+            // Personal Info functions
+            window.editPersonalInfo = () => {
+                personalInfoDisplay.style.display = 'none';
+                personalInfoEdit.style.display = 'block';
+            };
+
+            window.cancelEditPersonalInfo = () => {
+                personalInfoEdit.style.display = 'none';
+                personalInfoDisplay.style.display = 'block';
+                // Reload from server
+                loadPersonalInfo();
+            };
+
+            personalInfoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const full_name = `${(editFirstName.value || '').trim()} ${(editLastName.value || '').trim()}`.trim();
+                const phone = (editPhone.value || '').trim();
+                const email = (editEmail.value || '').trim();
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/update_profile.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ full_name, phone, email })
+                    });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to update profile';
+                        throw new Error(msg);
+                    }
+                    await loadPersonalInfo();
+                    cancelEditPersonalInfo();
+                    alert('Personal information updated!');
+                } catch (err) {
+                    console.error('Update profile error:', err);
+                    alert(err.message || 'Failed to update profile');
+                }
+            });
+
+            window.editAddress = (address) => {
+                const a = address;
+                addressFormTitle.textContent = 'Edit Address';
+                document.getElementById('address-id').value = a.id;
+                document.getElementById('address-type').value = a.label;
+                document.getElementById('street-address').value = a.street;
+                document.getElementById('apartment-suite').value = a.apartment || '';
+                document.getElementById('city').value = a.city;
+                document.getElementById('state').value = a.state;
+                document.getElementById('zip-code').value = a.zip_code;
+                document.getElementById('country').value = a.country;
+                document.getElementById('set-default-address').checked = !!a.is_default;
+                addressFormSection.style.display = 'block';
+            };
+
+            window.cancelAddressForm = () => {
+                addressFormSection.style.display = 'none';
+                addressForm.reset();
+            };
+
+            addressForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const addressId = document.getElementById('address-id').value;
+                const payload = {
+                    label: document.getElementById('address-type').value,
+                    street: document.getElementById('street-address').value,
+                    apartment: document.getElementById('apartment-suite').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    zip_code: document.getElementById('zip-code').value,
+                    country: document.getElementById('country').value,
+                    is_default: document.getElementById('set-default-address').checked
+                };
+                try {
+                    let url, method, body;
+                    if (addressId) {
+                        url = '/webtechnologies/FoodBox/backend/api/customer/addresses/update.php';
+                        method = 'POST';
+                        body = JSON.stringify({ id: Number(addressId), ...payload });
+                    } else {
+                        url = '/webtechnologies/FoodBox/backend/api/customer/addresses/create.php';
+                        method = 'POST';
+                        body = JSON.stringify(payload);
+                    }
+                    const resp = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, credentials: 'include', body });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to save address';
+                        throw new Error(msg);
+                    }
+                    alert(addressId ? 'Address updated!' : 'New address added!');
+                    cancelAddressForm();
+                    await loadAddresses();
+                } catch (err) {
+                    console.error('Save address error:', err);
+                    alert(err.message || 'Failed to save address');
+                }
+            });
+
+            window.showAddAddressForm = () => {
+                addressFormTitle.textContent = 'Add New Address';
+                document.getElementById('address-id').value = '';
+                addressForm.reset();
+                // If there are no addresses, default to checked
+                document.getElementById('set-default-address').checked = (addressList.children.length === 0);
+                addressFormSection.style.display = 'block';
+            };
+
+            window.deleteAddress = async (id) => {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/addresses/delete.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id }) });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to delete address';
+                        throw new Error(msg);
+                    }
+                    alert('Address deleted!');
+                    await loadAddresses();
+                } catch (err) {
+                    console.error('Delete address error:', err);
+                    alert(err.message || 'Failed to delete address');
+                }
+            };
+
+            window.setDefaultAddress = async (id) => {
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/addresses/set_default.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id }) });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to set default address';
+                        throw new Error(msg);
+                    }
+                    alert('Default address set!');
+                    await loadAddresses();
+                } catch (err) {
+                    console.error('Set default address error:', err);
+                    alert(err.message || 'Failed to set default address');
+                }
+            };
+
+            // Change password UI
+            document.getElementById('open-password-section').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('password-section').style.display = 'block';
+            });
+            document.getElementById('cancel-password').addEventListener('click', () => {
+                document.getElementById('password-section').style.display = 'none';
+                document.getElementById('password-form').reset();
+            });
+            document.getElementById('password-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const current_password = document.getElementById('current-password').value;
+                const new_password = document.getElementById('new-password').value;
+                const confirm_password = document.getElementById('confirm-password').value;
+                if (new_password !== confirm_password) { alert('New passwords do not match'); return; }
+                try {
+                    const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/change_password.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ current_password, new_password })
+                    });
+                    const raw = await resp.text();
+                    let data; try { data = JSON.parse(raw); } catch (_) { data = null; }
+                    if (!resp.ok || !(data && data.success)) {
+                        if (resp.status === 401) { window.location.href = '../login/login_page.html'; return; }
+                        const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || 'Failed to change password';
+                        throw new Error(msg);
+                    }
+                    alert('Password changed successfully');
+                    document.getElementById('password-section').style.display = 'none';
+                    document.getElementById('password-form').reset();
+                } catch (err) {
+                    console.error('Change password error:', err);
+                    alert(err.message || 'Failed to change password');
+                }
+            });
+
+            // Initial load
+            loadPersonalInfo();
+            loadAddresses();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Box - Register</title>
+  <link rel="stylesheet" href="register.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="background-image"></div>
+
+  <div class="form-container">
+    <div class="form-header">
+      <h1 class="logo">Food Box</h1>
+    </div>
+
+  <form id="register-form" class="main-form" method="POST" action="../../backend/register.php">
+  <div class="user-type-selector">
+    <label><input type="radio" name="user_type" value="customer" checked><span>Customer</span></label>
+    <label><input type="radio" name="user_type" value="delivery"><span>Delivery Boy</span></label>
+  </div>
+
+  <div class="input-group">
+    <label for="fullname">Full Name</label>
+    <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
+  </div>
+
+  <div class="input-group">
+    <label for="phn">Phone</label>
+    <input type="tel" id="phn" name="phn" placeholder="Phone Number" pattern="[0-9]{10}" required>
+  </div>
+
+  <div class="input-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Password" required>
+  </div>
+
+  <div class="input-group">
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+  </div>
+
+  <button type="submit" class="cta-button">Register</button>
+</form>
+
+
+    <div class="form-footer">
+      <p>Already have an account? <a href="../login/login_page.html">Login here</a></p>
+    </div>
+  </div>
+
+  
+  <script src="register.js"></script>
+</body>
+</html>

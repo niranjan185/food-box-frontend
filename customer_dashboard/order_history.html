@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4ECDC4;
+            --secondary-color: #ff5722;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .order-history-box {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 50px;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .order-history-box h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .order-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .order-item {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .order-item:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-3px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .order-header .order-id {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .order-header .order-date {
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .order-details {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-size: 0.95em;
+        }
+
+        .order-details p {
+            margin: 5px 0;
+            flex-basis: 48%; /* Two columns */
+        }
+        .order-details p strong {
+            color: var(--text-color);
+        }
+
+        .order-items-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+        }
+
+        .order-items-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .order-items-list li span:last-child {
+            font-weight: 500;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .order-footer .total-amount {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .order-footer .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: var(--transition);
+        }
+
+        .order-footer .btn:hover {
+            background-color: #e65a5a; /* Darker secondary */
+        }
+
+        .empty-history {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 1.3em;
+            color: #777;
+        }
+        .empty-history i {
+            font-size: 2em;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="order-history-box">
+            <h1>My Order History</h1>
+            <ul class="order-list" id="order-history-list">
+                <!-- Order items will be dynamically loaded here -->
+            </ul>
+            <div id="empty-history-message" class="empty-history" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <p>You haven't placed any orders yet!</p>
+                <p><a href="menu.html" class="btn">Start Ordering Now</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate Delivery Modal -->
+    <div id="rateDeliveryModal" class="restaurant-detail-modal" style="display:none; position:fixed; z-index:10; left:0; top:0; width:100%; height:100%; background-color: rgba(76, 175, 80, 0.6); color:white;align-items:center; justify-content:center;">
+        <div class="modal-content">
+            <span class="close-button" id="closeRateDeliveryModal">&times;</span>
+            <div class="modal-header">
+                <h2>Rate Your Delivery</h2>
+                <p>Please share feedback for delivery of order <strong id="rate-delivery-modal-order-id"></strong>.</p>
+            </div>
+            <div>
+                <div style="margin-bottom:10px;">
+                    <label for="rateDeliveryStars"><strong>Rating:</strong></label>
+                    <div id="rateDeliveryStars" style="font-size:24px; cursor:pointer; user-select:none;">
+                        <span data-val="1">☆</span>
+                        <span data-val="2">☆</span>
+                        <span data-val="3">☆</span>
+                        <span data-val="4">☆</span>
+                        <span data-val="5">☆</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="rateDeliveryComment"><strong>Comment (optional):</strong></label>
+                    <textarea id="rateDeliveryComment" rows="4" style="width:100%; box-sizing:border-box;"></textarea>
+                </div>
+                <div class="text-right mt-3" style="margin-top:15px; text-align:right;">
+                    <button class="btn" id="submitDeliveryReviewBtn">Submit Delivery Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate Order Modal -->
+    <div id="rateOrderModal" class="restaurant-detail-modal" style="display:none; position:fixed; z-index:10; left:0; top:0; width:100%; height:100%; background-color: rgba(247, 76, 9, 0.6); color:white;align-items:center; justify-content:center;">
+        <div class="modal-content">
+            <span class="close-button" id="closeRateModal">&times;</span>
+            <div class="modal-header">
+                <h2>Rate Your Order</h2>
+                <p>Please share your feedback for order <strong id="rate-modal-order-id"></strong>.</p>
+            </div>
+            <div>
+                <div style="margin-bottom:10px;">
+                    <label for="rateStars"><strong>Rating:</strong></label>
+                    <div id="rateStars" style="font-size:24px; cursor:pointer; user-select:none;">
+                        <span data-val="1">☆</span>
+                        <span data-val="2">☆</span>
+                        <span data-val="3">☆</span>
+                        <span data-val="4">☆</span>
+                        <span data-val="5">☆</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="rateComment"><strong>Comment (optional):</strong></label>
+                    <textarea id="rateComment" rows="4" style="width:100%; box-sizing:border-box;"></textarea>
+                </div>
+                <div class="text-right mt-3" style="margin-top:15px; text-align:right;">
+                    <button class="btn" id="submitReviewBtn">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food box. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const orderHistoryList = document.getElementById('order-history-list');
+            const emptyHistoryMessage = document.getElementById('empty-history-message');
+
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_order_history.php');
+                const data = await resp.json();
+                if (!resp.ok) {
+                    if (resp.status === 401) {
+                        window.location.href = '../login/login_page.html';
+                        return;
+                    }
+                    throw new Error(data.error || 'Failed to load orders');
+                }
+
+                const orders = data.orders || [];
+                if (orders.length === 0) {
+                    emptyHistoryMessage.style.display = 'block';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const orderItem = document.createElement('li');
+                    orderItem.classList.add('order-item');
+
+                    const itemsHtml = (order.items || []).map(it =>
+                        `<li><span>${it.name} (x${it.quantity})</span><span>₹${(it.price * it.quantity).toFixed(2)}</span></li>`
+                    ).join('');
+
+                    const orderIdText = `#${order.order_id}`;
+                    const created = order.created_at ? new Date(order.created_at).toLocaleString() : '';
+
+                    orderItem.innerHTML = `
+                        <div class="order-header">
+                            <span class="order-id">Order ID: ${orderIdText}</span>
+                            <span class="order-date">${created}</span>
+                        </div>
+                        <div class="order-details">
+                            <p><strong>Restaurant:</strong> ${order.restaurant_name}</p>
+                            <p><strong>Status:</strong> ${order.status}</p>
+                        </div>
+                        <ul class="order-items-list">
+                            ${itemsHtml}
+                        </ul>
+                        <div class="order-footer">
+                            <span class="total-amount">Total: ₹${Number(order.total_amount || 0).toFixed(2)}</span>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <a href="order_tracking.html?orderId=${order.order_id}" class="btn">View Details / Track</a>
+                                ${/delivered/i.test(String(order.status || '')) ? `<button class="btn rate-order-btn" data-order-id="${order.order_id}">Rate Order</button>` : ''}
+                                ${/delivered/i.test(String(order.status || '')) ? `<button class="btn rate-delivery-btn" data-order-id="${order.order_id}">Rate Delivery</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    orderHistoryList.appendChild(orderItem);
+                });
+
+        // Event delegation fallback in case buttons are rendered later
+        document.getElementById('order-history-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.rate-order-btn');
+            if (btn) {
+                e.preventDefault();
+                openRateModal(btn.dataset.orderId);
+            }
+        });
+
+                // Attach Rate button events
+                document.querySelectorAll('.rate-order-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openRateModal(btn.dataset.orderId));
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Failed to load orders');
+            }
+        });
+
+        // Rating modal logic
+        let currentRateOrderId = null;
+        let currentRating = 0;
+        const rateModal = document.getElementById('rateOrderModal');
+        const closeRateModalBtn = document.getElementById('closeRateModal');
+        const rateOrderIdSpan = document.getElementById('rate-modal-order-id');
+        const starsContainer = document.getElementById('rateStars');
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+
+        function openRateModal(orderId) {
+            currentRateOrderId = orderId;
+            currentRating = 0;
+            rateOrderIdSpan.textContent = `#${orderId}`;
+            // reset stars
+            [...starsContainer.querySelectorAll('span')].forEach(s => s.textContent = '☆');
+            document.getElementById('rateComment').value = '';
+            rateModal.style.display = 'flex';
+        }
+
+        closeRateModalBtn.addEventListener('click', () => { rateModal.style.display = 'none'; });
+        rateModal.addEventListener('click', (e) => {
+            if (e.target === rateModal) rateModal.style.display = 'none';
+        });
+
+        starsContainer.addEventListener('click', (e) => {
+            const val = parseInt(e.target.getAttribute('data-val'));
+            if (!val) return;
+            currentRating = val;
+            // fill stars up to val
+            [...starsContainer.querySelectorAll('span')].forEach(s => {
+                const sv = parseInt(s.getAttribute('data-val'));
+                s.textContent = sv <= val ? '★' : '☆';
+            });
+        });
+
+        submitReviewBtn.addEventListener('click', async () => {
+            if (!currentRateOrderId || currentRating < 1) {
+                alert('Please select a rating.');
+                return;
+            }
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/add_review.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ order_id: Number(currentRateOrderId), rating: currentRating, comment: document.getElementById('rateComment').value })
+                });
+                const raw = await resp.text();
+                let data; try { data = JSON.parse(raw); } catch { data = null; }
+                if (resp.ok && data && data.success) {
+                    alert('Thank you for your review!');
+                    rateModal.style.display = 'none';
+                } else if (resp.status === 409) {
+                    alert((data && data.error) || 'You have already reviewed this order.');
+                } else if (resp.status === 401) {
+                    window.location.href = '../login/login_page.html';
+                } else {
+                    const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || `HTTP ${resp.status}`;
+                    alert(`Failed to submit review: ${msg}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while submitting review.');
+            }
+        });
+
+        // Delivery rating modal logic
+        let currentDeliveryOrderId = null;
+        let currentDeliveryRating = 0;
+        const rateDeliveryModal = document.getElementById('rateDeliveryModal');
+        const closeRateDeliveryModalBtn = document.getElementById('closeRateDeliveryModal');
+        const rateDeliveryOrderIdSpan = document.getElementById('rate-delivery-modal-order-id');
+        const deliveryStarsContainer = document.getElementById('rateDeliveryStars');
+        const submitDeliveryReviewBtn = document.getElementById('submitDeliveryReviewBtn');
+
+        function openRateDeliveryModal(orderId) {
+            currentDeliveryOrderId = orderId;
+            currentDeliveryRating = 0;
+            rateDeliveryOrderIdSpan.textContent = `#${orderId}`;
+            [...deliveryStarsContainer.querySelectorAll('span')].forEach(s => s.textContent = '☆');
+            document.getElementById('rateDeliveryComment').value = '';
+            rateDeliveryModal.style.display = 'flex';
+        }
+
+        document.getElementById('order-history-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.rate-delivery-btn');
+            if (btn) {
+                e.preventDefault();
+                openRateDeliveryModal(btn.dataset.orderId);
+            }
+        });
+
+        closeRateDeliveryModalBtn.addEventListener('click', () => { rateDeliveryModal.style.display = 'none'; });
+        rateDeliveryModal.addEventListener('click', (e) => {
+            if (e.target === rateDeliveryModal) rateDeliveryModal.style.display = 'none';
+        });
+
+        deliveryStarsContainer.addEventListener('click', (e) => {
+            const val = parseInt(e.target.getAttribute('data-val'));
+            if (!val) return;
+            currentDeliveryRating = val;
+            [...deliveryStarsContainer.querySelectorAll('span')].forEach(s => {
+                const sv = parseInt(s.getAttribute('data-val'));
+                s.textContent = sv <= val ? '★' : '☆';
+            });
+        });
+
+        submitDeliveryReviewBtn.addEventListener('click', async () => {
+            if (!currentDeliveryOrderId || currentDeliveryRating < 1) {
+                alert('Please select a rating.');
+                return;
+            }
+            try {
+                const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/add_delivery_review.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ order_id: Number(currentDeliveryOrderId), rating: currentDeliveryRating, comment: document.getElementById('rateDeliveryComment').value })
+                });
+                const raw = await resp.text();
+                let data; try { data = JSON.parse(raw); } catch { data = null; }
+                if (resp.ok && data && data.success) {
+                    alert('Thank you for rating the delivery!');
+                    rateDeliveryModal.style.display = 'none';
+                } else if (resp.status === 409) {
+                    alert((data && data.error) || 'You have already rated this delivery.');
+                } else if (resp.status === 401) {
+                    window.location.href = '../login/login_page.html';
+                } else {
+                    const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || `HTTP ${resp.status}`;
+                    alert(`Failed to submit delivery review: ${msg}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while submitting delivery review.');
+            }
+        });
+    </script>
+
+</body>
+</html>

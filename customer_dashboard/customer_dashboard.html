@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Food Ordering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff5722;;
+            --secondary-color: #4ECDC4;
+            --text-color: #333;
+            --bg-light: #f4f7f6;
+            --bg-dark: #e0e4e3;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+           
+            
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr; /* Main content on left, sidebar on right */
+            }
+        }
+
+        .main-content, .sidebar {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        .welcome-message p {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--secondary-color);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .recommendation-card, .recent-order-card {
+            background-color: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .recommendation-card:hover, .recent-order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.3em;
+        }
+
+        .recommendation-card p {
+            font-size: 0.9em;
+            color: #666;
+            flex-grow: 1;
+        }
+
+        .recommendation-card .price {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: darken(var(--primary-color), 10%); /* This won't work in pure CSS, use a slightly darker hex */
+            background-color: #ff5722; /* Example darker shade */
+        }
+
+        .recent-order-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-size: 1.2em;
+        }
+
+        .recent-order-card p {
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .recent-order-card .status {
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-top: 10px;
+            display: block;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            background-color: var(--bg-light);
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar-nav a i {
+            font-size: 1.2em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="customer_dashboard.html" class="logo">Food Box</a>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="cart.html">Cart <span id="cart-item-count" style="background-color: var(--secondary-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+                <a href="profile.html">Profile</a>
+                <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container dashboard-grid">
+        <div class="main-content">
+            <div class="welcome-message">
+                <h1>Welcome Back, John Doe!</h1>
+                <p>Ready to satisfy your cravings? Explore new delights or reorder your favorites.</p>
+            </div>
+
+            <div class="recommendations">
+                <h2 class="section-title"><i class="fas fa-star"></i> Top Picks for You</h2>
+                <div class="card-grid" id="recommendations-container">
+                    <!-- Recommendation cards will be loaded here by JavaScript -->
+                    <div class="recommendation-card">
+                        <img src="download.jpeg" alt="Pizza">
+                        <h3>Delicious Pepperoni Pizza</h3>
+                        <p>Classic pepperoni, mozzarella, and a tangy tomato base from Pizza Palace.</p>
+                        <span class="price">₹15.99</span>
+                        <a href="menu.html?item=pizza-1" class="btn">Order Now</a>
+                    </div>
+                    <div class="recommendation-card">
+                        <img src="download (1).jpeg" alt="Burger">
+                        <h3>Gourmet Cheese Burger</h3>
+                        <p>Juicy beef patty, cheddar, fresh veggies, and special sauce from Burger Hub.</p>
+                        <span class="price">₹12.50</span>
+                        <a href="menu.html?item=burger-2" class="btn">Order Now</a>
+                    </div>
+                    <div class="recommendation-card">
+                        <img src="download (2).jpeg" alt="Sushi">
+                        <h3>Fresh Salmon Sushi Set</h3>
+                        <p>Assorted fresh salmon nigiri and maki rolls from Sushi Master.</p>
+                        <span class="price">₹22.00</span>
+                        <a href="menu.html?item=sushi-3" class="btn">Order Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-orders">
+                <h2 class="section-title"><i class="fas fa-history"></i> Your Recent Orders</h2>
+                <div class="card-grid" id="recent-orders-container">
+                    <!-- Recent order cards will be loaded here by JavaScript -->
+                    <div class="recent-order-card">
+                        <h3>Order #FOOD12345</h3>
+                        <p><strong>Restaurant:</strong> Pizza Palace</p>
+                        <p><strong>Items:</strong> Pepperoni Pizza, Coke</p>
+                        <p><strong>Total:</strong> ₹18.49</p>
+                        <span class="status">Status: Delivered</span>
+                        <a href="order_tracking.html?order=FOOD12345" class="btn" style="background-color: var(--secondary-color);">View Details</a>
+                    </div>
+                    <div class="recent-order-card">
+                        <h3>Order #FOOD12344</h3>
+                        <p><strong>Restaurant:</strong> Burger Hub</p>
+                        <p><strong>Items:</strong> Gourmet Burger, Fries</p>
+                        <p><strong>Total:</strong> ₹16.00</p>
+                        <span class="status">Status: Preparing</span>
+                        <a href="order_tracking.html?order=FOOD12344" class="btn" style="background-color: var(--secondary-color);">Track Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h2 class="section-title"><i class="fas fa-compass"></i> Quick Navigation</h2>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="restaurants.html"><i class="fas fa-utensils"></i> Browse Restaurants</a></li>
+                    <li><a href="order_history.html"><i class="fas fa-receipt"></i> Order History</a></li>
+                    <li><a href="order_tracking.html"><i class="fas fa-truck"></i> Track My Order</a></li>
+                    <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> My Cart</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user-circle"></i> Profile Settings</a></li>
+                    <li><a href="./restaurants.html?filter=favorites"><i class="fas fa-heart"></i> Favorite Restaurants</a></li>
+                    <li><a href="help.html"><i class="fas fa-question-circle"></i> Help & Support</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 FoodieDash. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    fetchDashboardData();
+    // Add event listener for logout if it's in a shared JS
+    document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+});
+
+async function fetchDashboardData() {
+    try {
+        const response = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_dashboard_data.php');
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update welcome message
+            document.querySelector('.welcome-message h1').textContent = `Welcome Back, ${data.user_name || 'Guest'}!`;
+
+            // Update recent order section
+            const recentOrderSection = document.getElementById('recent-orders-container'); // This is a grid container
+            recentOrderSection.innerHTML = ''; // Clear existing hardcoded examples
+
+            if (data.recent_order) {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'recent-order-card';
+                orderCard.innerHTML = `
+                    <h3>Order #${data.recent_order.order_id}</h3>
+                    <p><strong>Restaurant:</strong> ${data.recent_order.restaurant_name}</p>
+                    <p><strong>Total:</strong> $${parseFloat(data.recent_order.total_amount).toFixed(2)}</p>
+                    <span class="status">Status: ${data.recent_order.status}</span>
+                    <a href="order_tracking.html?order_id=${data.recent_order.order_id}" class="btn" style="background-color: var(--secondary-color);">
+                        ${data.recent_order.status === 'Delivered' ? 'View Details' : 'Track Order'}
+                    </a>
+                `;
+                recentOrderSection.appendChild(orderCard);
+            } else {
+                recentOrderSection.innerHTML = '<p>No recent orders found. <a href="menu.html">Start ordering now!</a></p>';
+            }
+
+            // Placeholder for recommendations - you would fetch these from a separate API or a more complex dashboard API
+            // For now, keep the hardcoded recommendations or fetch from a dummy endpoint if you create one.
+            // Example of how you might fetch recommendations (if you create a new API endpoint for them):
+            // fetchRecommendations();
+
+        } else if (response.status === 401) {
+            // Not authenticated, redirect to login
+            alert('Your session has expired or you are not logged in. Please log in again.');
+            window.location.href = '../welcome/welcome_page.html';
+        } else {
+            console.error('Failed to fetch dashboard data:', data.error);
+            // Display an error message to the user on the dashboard
+        }
+    } catch (error) {
+        console.error('Network or server error:', error);
+        // Display a general error message
+    }
+}
+
+// Function to handle logout - this could be in a shared.js or directly here
+async function handleLogout(event) {
+    event.preventDefault();
+    try {
+        const response = await fetch('/webtechnologies/FoodBox/backend/logout.php', { method: 'POST' });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Clear any client-side stored data like cart
+            localStorage.removeItem('cart');
+            alert('You have been logged out.');
+            window.location.href = '../welcome/welcome_page.html';
+        } else {
+            alert('Logout failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        alert('An error occurred during logout.');
+    }
+}
+
+// You also need to dynamically update the cart count from an API call
+async function updateCartCount() {
+    try {
+        const response = await fetch('/webtechnologies/FoodBox/backend/api/customer/get_cart.php');
+        const data = await response.json();
+        if (response.ok && data.cart_items) {
+            document.getElementById('cart-item-count').textContent = data.cart_items.length;
+        } else {
+            document.getElementById('cart-item-count').textContent = '0';
+        }
+    } catch (error) {
+        console.error('Error fetching cart count:', error);
+        document.getElementById('cart-item-count').textContent = '0';
+    }
+}
+
+// Call updateCartCount on page load
+document.addEventListener('DOMContentLoaded', updateCartCount);
+
+// Example of how to fetch recommendations (if you create a new API endpoint for them)
+/*
+async function fetchRecommendations() {
+    try {
+        const response = await fetch('/backend/api/customer/get_recommendations.php'); // New API endpoint needed
+        const data = await response.json();
+
+        if (response.ok && data.recommendations) {
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            recommendationsContainer.innerHTML = ''; // Clear existing hardcoded examples
+
+            data.recommendations.forEach(item => {
+                const recCard = document.createElement('div');
+                recCard.className = 'recommendation-card';
+                recCard.innerHTML = `
+                    <img src="${item.image_url || 'https://via.placeholder.com/300x150/FF6B6B/FFFFFF?text=No+Image'}" alt="${item.name}">
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <span class="price">$${parseFloat(item.price).toFixed(2)}</span>
+                    <a href="menu.html?item_id=${item.id}" class="btn">Order Now</a>
+                `;
+                recommendationsContainer.appendChild(recCard);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching recommendations:', error);
+    }
+}
+*/
+    </script>
+</body>
+</html>

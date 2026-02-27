@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings - Delivery Driver</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #343a40;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        #sidebar.active {
+            margin-left: -250px;
+        }
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #343a40;
+        }
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid #47748b;
+        }
+        #sidebar ul li a {
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
+            color: #e0e0e0;
+        }
+        #sidebar ul li a:hover {
+            color: #fff;
+            background: #ff5722;
+            text-decoration: none;
+        }
+        #content {
+            width: 100%;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .earnings-card .card-body {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .earnings-breakdown th, .earnings-breakdown td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>Delivery Driver</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="delivery_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="assigned_orders.html"><i class="fas fa-clipboard-list"></i> Assigned Orders</a>
+                </li>
+                <li>
+                    <a href="delivery_history.html"><i class="fas fa-history"></i> Delivery History</a>
+                </li>
+                <li class="active">
+                    <a href="earnings.html"><i class="fas fa-money-bill-wave"></i> Earnings</a>
+                </li>
+                <li>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                </li>
+                <li>
+                    <a href="/webtechnologies/FoodBox/backend/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                        <span>Toggle Sidebar</span>
+                    </button>
+                    <div class="ml-auto">
+                        <h4>Welcome, Driver Name!</h4>
+                    </div>
+                </div>
+            </nav>
+
+            <h2>Earnings</h2>
+            <p class="lead">View a summary of your delivery earnings.</p>
+
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3 earnings-card">
+                        <div class="card-header">Today's Earnings</div>
+                        <div class="card-body text-center" id="de-earn-today">$0.00</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3 earnings-card">
+                        <div class="card-header">This Week's Earnings</div>
+                        <div class="card-body text-center" id="de-earn-week">$0.00</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3 earnings-card">
+                        <div class="card-header">This Month's Earnings</div>
+                        <div class="card-body text-center" id="de-earn-month">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    Earnings Breakdown
+                </div>
+                <div class="card-body">
+                    <form class="form-inline mb-3">
+                        <div class="form-group mb-2 mr-2">
+                            <label for="earningsStartDate" class="sr-only">Start Date</label>
+                            <input type="date" class="form-control" id="earningsStartDate">
+                        </div>
+                        <div class="form-group mb-2 mr-2">
+                            <label for="earningsEndDate" class="sr-only">End Date</label>
+                            <input type="date" class="form-control" id="earningsEndDate">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-filter"></i> Apply Filter</button>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped earnings-breakdown" id="de-earnings-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Deliveries</th>
+                                    <th>Base Pay</th>
+                                    <th>Tips</th>
+                                    <th>Bonus</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="de-earnings-body">
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5" class="text-right">Total for Displayed Period:</th>
+                                    <th><strong id="de-period-total">$0.00</strong></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            // Initial load
+            loadDriverEarnings();
+            // Filter submit
+            $('form').on('submit', function (e) {
+                e.preventDefault();
+                loadDriverEarnings();
+            });
+        });
+
+        async function loadDriverEarnings() {
+            const start = document.getElementById('earningsStartDate').value;
+            const end = document.getElementById('earningsEndDate').value;
+            const params = new URLSearchParams();
+            if (start) params.append('start', start);
+            if (end) params.append('end', end);
+            try {
+                const resp = await fetch(`/webtechnologies/FoodBox/backend/api/delivery/get_earnings_report.php?${params.toString()}`, { credentials: 'include' });
+                const raw = await resp.text();
+                let data; try { data = JSON.parse(raw); } catch { data = null; }
+                const tbody = document.getElementById('de-earnings-body');
+                tbody.innerHTML = '';
+                if (resp.ok && data && data.success) {
+                    // Cards
+                    document.getElementById('de-earn-today').textContent = `$${parseFloat(data.cards?.today || 0).toFixed(2)}`;
+                    document.getElementById('de-earn-week').textContent = `$${parseFloat(data.cards?.week || 0).toFixed(2)}`;
+                    document.getElementById('de-earn-month').textContent = `$${parseFloat(data.cards?.month || 0).toFixed(2)}`;
+
+                    // Breakdown
+                    let total = 0;
+                    (data.breakdown || []).forEach(r => {
+                        total += parseFloat(r.total || 0);
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${r.day}</td>
+                            <td>${r.deliveries}</td>
+                            <td>$${parseFloat(r.base_pay || 0).toFixed(2)}</td>
+                            <td>$${parseFloat(r.tips || 0).toFixed(2)}</td>
+                            <td>$${parseFloat(r.bonus || 0).toFixed(2)}</td>
+                            <td><strong>$${parseFloat(r.total || 0).toFixed(2)}</strong></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    document.getElementById('de-period-total').textContent = `$${total.toFixed(2)}`;
+                } else if (resp.status === 401) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Please log in as delivery driver</td></tr>`;
+                } else {
+                    const msg = data && (data.error_detail || data.error) ? `${data.error}${data.error_detail ? ' - ' + data.error_detail : ''}` : raw || `HTTP ${resp.status}`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Failed to load earnings: ${msg}</td></tr>`;
+                }
+            } catch (e) {
+                console.error('Earnings load error:', e);
+                const tbody = document.getElementById('de-earnings-body');
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Network/server error</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>

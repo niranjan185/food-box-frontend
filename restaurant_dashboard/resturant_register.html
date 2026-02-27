@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Express - Restaurant Register</title>
+  <link rel="stylesheet" href="restaurant_register.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="background-image"></div>
+
+  <div class="form-container">
+    <div class="form-header">
+      <h1 class="logo">Food Box</h1>
+    </div>
+
+    <form id="restaurant-register-form" class="main-form" method="POST" action="../../backend/restaurant_register.php">
+      <div class="input-group">
+        
+        <label for="restaurant_name">Restaurant Name</label>
+        <input type="text" id="restaurant_name" name="restaurant_name" placeholder="Restaurant Name" required>
+      </div>
+      <div class="input-group">
+        <label for="owner_name">Owner Name</label>
+        <input type="text" id="owner_name" name="owner_name" placeholder="Owner Name" required>
+      </div>
+      <div class="input-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="10-digit Phone" pattern="[0-9]{10}" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+      </div>
+      <div class="input-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+      </div>
+      <div class="input-group">
+        <label for="license_id">License ID</label>
+        <input type="text" id="license_id" name="license_id" placeholder="License ID">
+      </div>
+      <div class="input-group">
+        <label for="food_commission_id">Food Commission ID</label>
+        <input type="text" id="food_commission_id" name="food_commission_id" placeholder="Food Commission ID">
+      </div>
+      <button type="submit" class="cta-button">Register</button>
+    </form>
+
+    <div class="form-footer">
+      <p>Already have an account? <a href="restaurant_login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <script src="restaurant_register.js"></script>
+</body>
+</html>

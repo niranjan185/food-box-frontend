@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Tickets | FoodieExpress Admin</title>
+  
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: "Poppins", sans-serif;
+    }
+    .sidebar {
+      height: 100vh;
+      background-color: #212529;
+      color: white;
+      position: fixed;
+      width: 240px;
+      padding-top: 30px;
+    }
+    .sidebar h4 {
+      text-align: center;
+      font-weight: 600;
+    }
+    .sidebar a {
+      color: #ccc;
+      text-decoration: none;
+      display: block;
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+      transition: 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      background-color: #ff5722;
+      color: white;
+    }
+    .content {
+      margin-left: 260px;
+      padding: 30px;
+    }
+    .ticket-card {
+      transition: all 0.2s;
+      border-left: 4px solid #0d6efd;
+    }
+    .ticket-card.unread {
+      background-color: #f8f9fa;
+      border-left: 4px solid #dc3545;
+    }
+    .ticket-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .ticket-status {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .status-open { background-color: #d1e7dd; color: #0f5132; }
+    .status-pending { background-color: #fff3cd; color: #664d03; }
+    .status-resolved { background-color: #cfe2ff; color: #084298; }
+    .ticket-meta {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+    .ticket-message {
+      white-space: pre-wrap;
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      border-left: 3px solid #dee2e6;
+    }
+    .reply-form {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .reply {
+      background: #f8f9fa;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-left: 3px solid #0d6efd;
+    }
+    .reply.admin {
+      background: #e7f1ff;
+      border-left-color: #0d6efd;
+    }
+    .reply.customer {
+      background: #f8f9fa;
+      border-left-color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h4><i class="fa-solid fa-burger"></i> Food Box</h4>
+    <hr class="text-white mx-3">
+    <a href="admin_dashboard.html"><i class="fa-solid fa-chart-line me-2"></i>Dashboard</a>
+    <a href="restaurant_verification.html"><i class="fa-solid fa-store me-2"></i>Restaurants</a>
+    <a href="customer.html"><i class="fa-solid fa-users me-2"></i>Customers</a>
+    <a href="delivery.html"><i class="fa-solid fa-truck-fast me-2"></i>Delivery</a>
+    <a href="earnings.html"><i class="fa-solid fa-money-bill-trend-up me-2"></i>Earnings</a>
+    <a href="support_tickets.html" class="active"><i class="fa-solid fa-ticket me-2"></i>Support Tickets</a>
+    <a href="/webtechnologies/FoodBox/backend/logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">Support Tickets</h2>
+      <div>
+        <button class="btn btn-primary" id="refreshTickets">
+          <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header bg-white">
+            <div class="input-group">
+              <input type="text" id="searchTickets" class="form-control" placeholder="Search tickets...">
+              <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <div class="mt-3">
+              <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body p-0" style="max-height: calc(100vh - 250px); overflow-y: auto;">
+            <div id="ticketList" class="list-group list-group-flush">
+              <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading tickets...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-8">
+        <div class="card" id="ticketDetailCard" style="display: none;">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0" id="ticketSubject">Ticket #<span id="ticketId"></span></h5>
+            <div>
+              <span id="ticketStatus" class="ticket-status status-open">Open</span>
+              <button class="btn btn-sm btn-outline-secondary ms-2" id="closeTicketBtn">
+                <i class="fas fa-times me-1"></i> Close
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="ticket-meta mb-3">
+              From: <span id="ticketCustomer">John Doe</span> | 
+              Order: <span id="ticketOrder">#12345</span> | 
+              <span id="ticketDate">2023-10-26 14:30</span>
+            </div>
+            <div class="ticket-message mb-4" id="ticketMessage">
+              Loading ticket details...
+            </div>
+            
+            <div id="ticketReplies">
+              <!-- Replies will be loaded here -->
+            </div>
+            
+            <form id="replyForm">
+              <input type="hidden" id="ticket_id" name="ticket_id">
+              <div class="mb-3">
+                <label for="replyMessage" class="form-label">Your Reply</label>
+                <textarea class="form-control" id="replyMessage" rows="3" required></textarea>
+              </div>
+              <div class="d-flex justify-content-between">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="markAsResolved" name="mark_resolved">
+                  <label class="form-check-label" for="markAsResolved">
+                    Mark as resolved
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-paper-plane me-1"></i> Send Reply
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div class="text-center py-5 text-muted" id="noTicketSelected">
+          <i class="fas fa-ticket-alt fa-3x mb-3"></i>
+          <h4>Select a ticket to view details</h4>
+          <p>Choose a ticket from the list to view its details and respond.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Global variables
+      let tickets = [];
+      let currentTicketId = null;
+      
+      // DOM Elements
+      const ticketList = document.getElementById('ticketList');
+      const ticketDetailCard = document.getElementById('ticketDetailCard');
+      const noTicketSelected = document.getElementById('noTicketSelected');
+      const searchInput = document.getElementById('searchTickets');
+      const statusFilter = document.getElementById('statusFilter');
+      const refreshBtn = document.getElementById('refreshTickets');
+      const replyForm = document.getElementById('replyForm');
+      const closeTicketBtn = document.getElementById('closeTicketBtn');
+      
+      // Load tickets on page load
+      loadTickets();
+      
+      // Event Listeners
+      refreshBtn.addEventListener('click', loadTickets);
+      searchInput.addEventListener('input', filterTickets);
+      statusFilter.addEventListener('change', filterTickets);
+      replyForm.addEventListener('submit', handleReplySubmit);
+      closeTicketBtn.addEventListener('click', closeCurrentTicket);
+      
+      // Load tickets from API
+      async function loadTickets() {
+        try {
+          ticketList.innerHTML = `
+            <div class="text-center p-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading tickets...</p>
+            </div>`;
+
+          const response = await fetch('/webtechnologies/FoodBox/backend/api/support/admin_tickets.php', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache'
+            }
+          });
+          
+          // Handle non-OK responses
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server response:', errorText);
+            
+            // Check for authentication issues
+            if (response.status === 401) {
+              window.location.href = '/webtechnologies/FoodBox/frontend/admin/login.html';
+              return;
+            }
+            
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data && data.success) {
+            tickets = Array.isArray(data.tickets) ? data.tickets : [];
+            renderTicketList(tickets);
+            
+            // If we have a ticket ID in the URL, select it
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketId = urlParams.get('ticket_id');
+            if (ticketId) {
+              selectTicket(parseInt(ticketId));
+            }
+            
+            // If no tickets found, show message
+            if (tickets.length === 0) {
+              ticketList.innerHTML = `
+                <div class="text-center p-4 text-muted">
+                  <i class="fas fa-inbox fa-3x mb-3"></i>
+                  <p class="mb-0">No support tickets found</p>
+                </div>`;
+            }
+          } else {
+            throw new Error(data?.error || 'Invalid response from server');
+          }
+        } catch (error) {
+          console.error('Error loading tickets:', error);
+          ticketList.innerHTML = `
+            <div class="alert alert-danger m-3">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              ${error.message || 'Failed to load tickets. Please try again.'}
+              <div class="mt-2">
+                <button class="btn btn-sm btn-outline-danger me-2" onclick="location.reload()">
+                  <i class="fas fa-sync-alt me-1"></i> Retry
+                </button>
+                <a href="/webtechnologies/FoodBox/frontend/admin/login.html" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a>
+              </div>
+            </div>`;
+        }
+      }
+      
+      // Render ticket list
+      function renderTicketList(ticketsToRender) {
+        if (!ticketsToRender.length) {
+          ticketList.innerHTML = `
+            <div class="text-center p-4 text-muted">
+              <i class="fas fa-inbox fa-3x mb-3"></i>
+              <p class="mb-0">No tickets found</p>
+            </div>
+          `;
+          return;
+        }
+        
+        ticketList.innerHTML = ticketsToRender.map(ticket => `
+          <a href="#" class="list-group-item list-group-item-action p-3 ticket-item ${!ticket.is_read ? 'unread' : ''}" 
+             data-ticket-id="${ticket.id}" onclick="event.preventDefault(); selectTicket(${ticket.id});">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="me-3">
+                <h6 class="mb-1 text-truncate" style="max-width: 250px;">${ticket.topic}</h6>
+                <small class="text-muted">#${ticket.id} • ${formatDate(ticket.created_at)}</small>
+              </div>
+              <span class="badge ${getStatusBadgeClass(ticket.status)}">
+                ${formatStatus(ticket.status)}
+              </span>
+            </div>
+            <p class="mb-0 mt-1 text-muted small text-truncate">${ticket.message.substring(0, 60)}${ticket.message.length > 60 ? '...' : ''}</p>
+          </a>
+        `).join('');
+      }
+      
+      // Filter tickets based on search and status
+      function filterTickets() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+        
+        const filtered = tickets.filter(ticket => {
+          const matchesSearch = ticket.topic.toLowerCase().includes(searchTerm) || 
+                              ticket.message.toLowerCase().includes(searchTerm) ||
+                              String(ticket.id).includes(searchTerm);
+          const matchesStatus = !status || ticket.status === status;
+          return matchesSearch && matchesStatus;
+        });
+        
+        renderTicketList(filtered);
+      }
+      
+      // Select a ticket to view details
+      async function selectTicket(ticketId) {
+        try {
+          currentTicketId = ticketId;
+          
+          // Update URL
+          const url = new URL(window.location);
+          url.searchParams.set('ticket_id', ticketId);
+          window.history.pushState({}, '', url);
+          
+          // Highlight selected ticket in the list
+          document.querySelectorAll('.ticket-item').forEach(item => {
+            item.classList.remove('active');
+            if (parseInt(item.getAttribute('data-ticket-id')) === ticketId) {
+              item.classList.add('active');
+            }
+          });
+          
+          // Show loading state
+          ticketDetailCard.style.display = 'none';
+          noTicketSelected.style.display = 'none';
+          
+          // Fetch ticket details
+          const response = await fetch(`/webtechnologies/FoodBox/backend/api/support/ticket_details.php?ticket_id=${ticketId}`, {
+            credentials: 'include'
+          });
+          
+          if (!response.ok) throw new Error('Failed to load ticket details');
+          
+          const data = await response.json();
+          if (data.success && data.ticket) {
+            const ticket = data.ticket;
+            
+            // Update ticket details view
+            // Do NOT overwrite #ticketSubject; it contains nested #ticketId span
+            const idSpan = document.getElementById('ticketId');
+            if (idSpan) idSpan.textContent = ticket.id;
+            document.getElementById('ticketMessage').textContent = ticket.message;
+            document.getElementById('ticketCustomer').textContent = ticket.customer_name || `Customer #${ticket.customer_id}`;
+            document.getElementById('ticketOrder').textContent = ticket.order_id ? `#${ticket.order_id}` : 'N/A';
+            document.getElementById('ticketDate').textContent = formatDateTime(ticket.created_at);
+            
+            // Update status
+            const statusBadge = document.getElementById('ticketStatus');
+            statusBadge.className = `ticket-status ${getStatusBadgeClass(ticket.status)}`;
+            statusBadge.textContent = formatStatus(ticket.status);
+            
+            // Update close button visibility
+            closeTicketBtn.style.display = ticket.status === 'closed' ? 'none' : 'inline-block';
+            
+            // Set ticket ID in form
+            document.getElementById('ticket_id').value = ticket.id;
+            
+            // Load replies
+            renderReplies(ticket.replies || []);
+            
+            // Show ticket details
+            ticketDetailCard.style.display = 'block';
+            noTicketSelected.style.display = 'none';
+            
+            // Mark as read
+            if (!ticket.is_read) {
+              await markAsRead(ticketId);
+              // Update ticket in the list
+              const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+              if (ticketIndex !== -1) {
+                tickets[ticketIndex].is_read = 1;
+                renderTicketList(tickets);
+              }
+            }
+          } else {
+            throw new Error(data.error || 'Failed to load ticket details');
+          }
+        } catch (error) {
+          console.error('Error loading ticket details:', error);
+          alert('Failed to load ticket details. Please try again.');
+        }
+      }
+      // Expose for inline onclick handlers
+      window.selectTicket = selectTicket;
+      
+      // Render ticket replies
+      function renderReplies(replies) {
+        const repliesContainer = document.getElementById('ticketReplies');
+        
+        if (!replies || !replies.length) {
+          repliesContainer.innerHTML = '<p class="text-muted small">No replies yet.</p>';
+          return;
+        }
+        
+        // Sort replies by date (oldest first)
+        replies.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        
+        repliesContainer.innerHTML = `
+          <h6 class="mb-3">Conversation</h6>
+          ${replies.map(reply => `
+            <div class="reply ${reply.is_admin ? 'admin' : 'customer'}">
+              <div class="d-flex justify-content-between mb-2">
+                <strong>${reply.is_admin ? 'Admin' : (reply.customer_name || 'Customer')}</strong>
+                <small class="text-muted">${formatDateTime(reply.created_at)}</small>
+              </div>
+              <div class="ticket-message">${reply.message}</div>
+            </div>
+          `).join('')}
+        `;
+      }
+      
+      // Handle reply form submission
+      async function handleReplySubmit(e) {
+        e.preventDefault();
+        
+        const ticketId = document.getElementById('ticket_id').value;
+        const message = document.getElementById('replyMessage').value.trim();
+        const markResolved = document.getElementById('markAsResolved').checked;
+        
+        if (!message) {
+          alert('Please enter a message');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/webtechnologies/FoodBox/backend/api/support/add_reply.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ticket_id: ticketId,
+              message: message,
+              mark_resolved: markResolved
+            }),
+            credentials: 'include'
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Clear form
+            document.getElementById('replyMessage').value = '';
+            document.getElementById('markAsResolved').checked = false;
+            
+            // Reload ticket to show the new reply
+            await selectTicket(ticketId);
+            
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.role = 'alert';
+            alert.innerHTML = `
+              <i class="fas fa-check-circle me-2"></i>
+              Your reply has been sent successfully.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.content').prepend(alert);
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+              const bsAlert = new bootstrap.Alert(alert);
+              bsAlert.close();
+            }, 3000);
+            
+            // Reload tickets list to update status if needed
+            if (markResolved) {
+              await loadTickets();
+            }
+          } else {
+            throw new Error(data.error || 'Failed to send reply');
+          }
+        } catch (error) {
+          console.error('Error sending reply:', error);
+          alert('Failed to send reply. Please try again.');
+        }
+      }
+      
+      // Close current ticket
+      async function closeCurrentTicket() {
+        if (!confirm('Are you sure you want to close this ticket?')) return;
+        
+        try {
+          const response = await fetch('/webtechnologies/FoodBox/backend/api/support/update_ticket_status.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ticket_id: currentTicketId,
+              status: 'closed'
+            }),
+            credentials: 'include'
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Reload ticket to show updated status
+            await selectTicket(currentTicketId);
+            // Reload tickets list to update status
+            await loadTickets();
+          } else {
+            throw new Error(data.error || 'Failed to close ticket');
+          }
+        } catch (error) {
+          console.error('Error closing ticket:', error);
+          alert('Failed to close ticket. Please try again.');
+        }
+      }
+      
+      // Mark ticket as read
+      async function markAsRead(ticketId) {
+        try {
+          await fetch('/webtechnologies/FoodBox/backend/api/support/mark_as_read.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_id: ticketId }),
+            credentials: 'include'
+          });
+          
+          // Update notification count if needed
+          updateNotificationCount();
+        } catch (error) {
+          console.error('Error marking as read:', error);
+        }
+      }
+      
+      // Update notification badge count
+      async function updateNotificationCount() {
+        try {
+          const response = await fetch('/webtechnologies/FoodBox/backend/api/support/unread_count.php', {
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const badge = document.querySelector('#notificationBadge');
+            if (!badge) return; // Badge not present on this page
+            if (data.success && data.count > 0) {
+              badge.textContent = data.count > 99 ? '99+' : data.count;
+              badge.style.display = 'inline-block';
+            } else {
+              badge.style.display = 'none';
+            }
+          }
+        } catch (error) {
+          console.error('Error updating notification count:', error);
+        }
+      }
+      
+      // Helper functions
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+      
+      function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      
+      function formatStatus(status) {
+        return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+      
+      function getStatusBadgeClass(status) {
+        const statusClasses = {
+          'open': 'status-open',
+          'in_progress': 'status-pending',
+          'resolved': 'status-resolved',
+          'closed': 'bg-secondary text-white'
+        };
+        return statusClasses[status] || 'bg-light text-dark';
+      }
+      
+      // Initialize notification count
+      updateNotificationCount();
+      
+      // Check for ticket ID in URL on page load
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('ticket_id');
+      if (ticketId) {
+        selectTicket(parseInt(ticketId));
+      } else {
+        noTicketSelected.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

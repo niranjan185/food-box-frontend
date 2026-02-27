@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Earnings</title>
+    <link rel="stylesheet" href="earnings.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <?php include 'shared_header.php'; ?>
+
+    <div class="container">
+        <h1><i class="fas fa-hand-holding-usd"></i> Your Earnings</h1>
+        <p>Overview of your restaurant's revenue and order statistics.</p>
+
+        <section class="mt-4 card">
+            <h2>Earnings Summary</h2>
+            <div class="card-grid">
+                <div class="card text-center">
+                    <h3>Total Revenue</h3>
+                    <p class="h1 mb-0" id="total-revenue">₹0.00</p>
+                </div>
+                <div class="card text-center">
+                    <h3>Completed Orders</h3>
+                    <p class="h1 mb-0" id="total-completed-orders">0</p>
+                </div>
+                <div class="card text-center">
+                    <h3>Average Order Value</h3>
+                    <p class="h1 mb-0" id="avg-order-value">₹0.00</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-4 card">
+            <h2>Detailed Earnings Report</h2>
+            <div class="form-group">
+                <label for="date-range-filter">Select Period:</label>
+                <select id="date-range-filter" class="form-control">
+                    <option value="today">Today</option>
+                    <option value="last_7_days">Last 7 Days</option>
+                    <option value="this_month">This Month</option>
+                    <option value="last_30_days">Last 30 Days</option>
+                    <option value="last_year">Last Year</option>
+                    <option value="all_time">All Time</option>
+                </select>
+                <button id="apply-earnings-filter-btn" class="btn btn-secondary mt-2">Generate Report</button>
+            </div>
+
+            <div id="earnings-report-details" class="mt-4">
+                <p id="no-earnings-data" class="text-center">No earnings data available for this period.</p>
+                <table class="data-table hidden" id="earnings-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="earnings-table-body">
+                        <!-- Earnings data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Food Box Restaurant. All rights reserved.</p>
+    </footer>
+
+    <script src="js/shared.js?v=2"></script>
+    <script src="earnings.js?v=2"></script>
+</body>
+</html>

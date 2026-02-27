@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Restaurants - Food Box</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body { background:#f7f7f9; font-family: 'Poppins', sans-serif; }
+    /* Header styles to match customer_dashboard */
+    header { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .navbar { display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto; padding: 12px 20px; }
+    .logo { font-size:1.8em; font-weight:700; color:#ff5722; text-decoration:none; }
+    .nav-links a { color:#333; text-decoration:none; margin-left:25px; font-weight:500; transition: all 0.3s ease; }
+    .nav-links a:hover { color:#ff5722; }
+    .restaurant-card { border:none; border-radius:14px; overflow:hidden; box-shadow:0 6px 16px rgba(0,0,0,0.08); transition:transform .2s; cursor:pointer; }
+    .restaurant-card:hover { transform: translateY(-4px); }
+    .restaurant-img { height:160px; object-fit:cover; }
+    .badge-open { background:#16a34a; }
+    .badge-closed { background:#dc2626; }
+    .fav-btn { background: transparent; border: none; color: #dc2626; font-size: 1.2rem; cursor: pointer; }
+    .fav-btn.inactive { color: #bbb; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="customer_dashboard.html" class="logo">Food Box</a>
+      <div class="nav-links">
+        <a href="menu.html">Menu</a>
+        <a href="cart.html">Cart <span id="cart-item-count" style="background-color: #4ECDC4; color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8em; display: inline-block;">0</span></a>
+        <a href="profile.html">Profile</a>
+        <a href="/webtechnologies/FoodBox/backend/logout.php">Logout</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="mb-0">Browse Restaurants</h3>
+      <div class="d-flex gap-2">
+        <input id="search" type="text" class="form-control" placeholder="Search by name or cuisine" style="width:260px;">
+        <button id="refresh" class="btn btn-outline-secondary">Refresh</button>
+      </div>
+    </div>
+
+    <div id="grid" class="row g-3"></div>
+
+    <div id="empty" class="text-center text-muted py-5 d-none">No restaurants found.</div>
+  </div>
+
+  <script>
+    let favSet = new Set();
+    let favLoaded = false;
+
+    async function ensureFavoritesLoaded(){
+      if (favLoaded) return;
+      try {
+        const resp = await fetch('/webtechnologies/FoodBox/backend/api/customer/list_favorite_restaurants.php', { credentials:'include' });
+        if (resp.ok) {
+          const data = await resp.json();
+          const items = data.restaurants || [];
+          favSet = new Set(items.map(x => String(x.id)));
+        }
+      } catch (e) { /* ignore */ }
+      favLoaded = true;
+    }
+
+    function cardTemplate(r){
+      const img = r.logo_url || 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=1200&auto=format&fit=crop';
+      const name = r.restaurant_name || r.name || 'Restaurant';
+      const cuisine = r.cuisine_type || r.category || 'Various';
+      const status = (r.status||'open').toLowerCase();
+      const statusBadge = status === 'open' ? '<span class="badge badge-open">Open</span>' : '<span class="badge badge-closed">Closed</span>';
+      const isFav = favSet.has(String(r.id));
+      const favIcon = isFav ? '<i class="fa-solid fa-heart"></i>' : '<i class="fa-regular fa-heart"></i>';
+      const favClass = isFav ? 'fav-btn' : 'fav-btn inactive';
+      return `
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card restaurant-card" data-id="${r.id}">
+            <img src="${img}" class="restaurant-img" alt="${name}">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h5 class="card-title mb-0">${name}</h5>
+                <div class="d-flex align-items-center gap-2">
+                  ${statusBadge}
+                  <button type="button" class="${favClass}" title="Toggle favorite" data-fav data-id="${r.id}">${favIcon}</button>
+                </div>
+              </div>
+              <p class="card-text text-muted mb-0">${cuisine}</p>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    async function loadRestaurants(q=''){
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      grid.innerHTML = '<div class="col-12 text-center text-muted py-4">Loading...</div>';
+      empty.classList.add('d-none');
+      try{
+        await ensureFavoritesLoaded();
+        const params = new URLSearchParams(window.location.search);
+        const filter = (params.get('filter')||'').toLowerCase();
+        let items = [];
+        if (filter === 'favorites') {
+          const urlFav = '/webtechnologies/FoodBox/backend/api/customer/list_favorite_restaurants.php' + (q?('?q='+encodeURIComponent(q)): '');
+          const resp = await fetch(urlFav, { credentials:'include' });
+          const data = await resp.json();
+          if (resp.ok && data.success) items = data.restaurants || [];
+        } else {
+          // Prefer customer API
+          const custBase = '/webtechnologies/FoodBox/backend/api/customer/list_restaurants.php';
+          const urlCust = custBase + '?status=approved' + (q?('&q='+encodeURIComponent(q)):'');
+          let resp = await fetch(urlCust, { credentials:'include' });
+          let data = await resp.json();
+          if (resp.ok && data.success) {
+            items = data.restaurants || [];
+          } else {
+            console.warn('Customer restaurants API failed, trying admin fallback', data);
+            const base = '/webtechnologies/FoodBox/backend/api/admin/list_restaurants.php';
+            const urlApproved = base + '?status=approved' + (q?('&q='+encodeURIComponent(q)):'');
+            resp = await fetch(urlApproved, { credentials:'include' });
+            data = await resp.json();
+            if(resp.ok && data.success){ items = data.restaurants || []; }
+          }
+          if(items.length === 0){
+            const base = '/webtechnologies/FoodBox/backend/api/admin/list_restaurants.php';
+            const urlAll = base + '?status=all' + (q?('&q='+encodeURIComponent(q)):'');
+            resp = await fetch(urlAll, { credentials:'include' });
+            data = await resp.json();
+            if(resp.ok && data.success){
+              items = (data.restaurants||[]).filter(r => String(r.is_verified||'0') === '1');
+            }
+          }
+        }
+        if(items.length === 0){ grid.innerHTML = ''; empty.classList.remove('d-none'); return; }
+        grid.innerHTML = items.map(cardTemplate).join('');
+      }catch(e){
+        console.error('Restaurants fetch failed', e);
+        grid.innerHTML = '<div class="col-12 text-center text-danger py-4">Failed to load restaurants.</div>';
+      }
+    }
+
+    document.addEventListener('click', async (e)=>{
+      const card = e.target.closest('.restaurant-card');
+      const favBtn = e.target.closest('[data-fav]');
+      if (favBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const rid = favBtn.dataset.id;
+        const isActive = favSet.has(String(rid));
+        try {
+          const url = isActive ? '/webtechnologies/FoodBox/backend/api/customer/remove_favorite.php' : '/webtechnologies/FoodBox/backend/api/customer/add_favorite.php';
+          const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ restaurant_id: parseInt(rid,10) }) });
+          if (resp.status === 401) { alert('Please log in to manage favorites.'); return; }
+          const data = await resp.json();
+          if (!resp.ok || !data.success) { throw new Error(data.error||'Failed to update favorites'); }
+          if (isActive) { favSet.delete(String(rid)); } else { favSet.add(String(rid)); }
+          // Update icon
+          if (favSet.has(String(rid))) {
+            favBtn.classList.remove('inactive');
+            favBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+          } else {
+            favBtn.classList.add('inactive');
+            favBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+          }
+        } catch (err) { console.error('Favorite toggle failed', err); alert('Could not update favorites.'); }
+        return;
+      }
+      if(!card) return;
+      const id = card.dataset.id;
+      if(id){ window.location.href = 'menu.html?restaurant_id=' + encodeURIComponent(id); }
+    });
+
+    document.getElementById('search').addEventListener('input', (e)=>{
+      const v = e.target.value.trim();
+      loadRestaurants(v);
+    });
+    document.getElementById('refresh').addEventListener('click', ()=>{
+      const v = document.getElementById('search').value.trim();
+      loadRestaurants(v);
+    });
+
+    document.addEventListener('DOMContentLoaded', ()=> loadRestaurants());
+  </script>
+</body>
+</html>

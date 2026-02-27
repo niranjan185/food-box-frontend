@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Profile</title>
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <?php include 'shared_header.php'; ?>
+
+    <div class="container">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div>
+                <h1 style="margin-bottom:6px;"><i class="fas fa-store"></i> Restaurant Profile</h1>
+                <p style="margin:0;">Manage your restaurant's public information and account settings.</p>
+            </div>
+            <div>
+                <a href="support_tickets.html" class="btn btn-secondary" style="text-decoration:none; position:relative;">
+                    <i class="fas fa-life-ring"></i> Support Tickets
+                    <span id="tickets-unread-badge" style="display:none; position:absolute; top:-6px; right:-6px; background:#dc3545; color:#fff; border-radius:999px; padding:2px 6px; font-size:12px; font-weight:700;">0</span>
+                </a>
+            </div>
+        </div>
+
+        <section class="mt-4 card">
+            <h2>Restaurant Information</h2>
+            <form id="update-restaurant-profile-form">
+                <div class="form-group">
+                    <label for="restaurant-name">Restaurant Name:</label>
+                    <input type="text" id="restaurant-name" name="restaurant_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner-name">Owner Name:</label>
+                    <input type="text" id="owner-name" name="owner_name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="cuisine-type">Cuisine Type:</label>
+                    <input type="text" id="cuisine-type" name="cuisine_type">
+                </div>
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address"></textarea>
+                    <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button type="button" id="rest-choose-on-map" class="btn"><i class="fas fa-map"></i> Choose on Map</button>
+                        <span id="rest-location-badge" style="display:none; color:#2b9348; font-weight:600;"></span>
+                    </div>
+                    <input type="hidden" id="rest-lat" name="lat" />
+                    <input type="hidden" id="rest-lng" name="lng" />
+                </div>
+                <div class="form-group">
+                    <label for="opening-time">Opening Time:</label>
+                    <input type="time" id="opening-time" name="opening_time">
+                </div>
+                <div class="form-group">
+                    <label for="closing-time">Closing Time:</label>
+                    <input type="time" id="closing-time" name="closing_time">
+                </div>
+                <div class="form-group">
+                    <label for="logo-url">Logo URL:</label>
+                    <input type="text" id="logo-url" name="logo_url">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status">
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="busy">Busy</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Profile</button>
+            </form>
+        </section>
+
+        <section class="mt-4 card">
+            <h2>Change Password</h2>
+            <form id="change-password-form">
+                <div class="form-group">
+                    <label for="current-password">Current Password:</label>
+                    <input type="password" id="current-password" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password:</label>
+                    <input type="password" id="new-password" name="new_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-new-password">Confirm New Password:</label>
+                    <input type="password" id="confirm-new-password" name="confirm_new_password" required>
+                </div>
+                <button type="submit" class="btn btn-secondary">Change Password</button>
+            </form>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Food Box Restaurant. All rights reserved.</p>
+    </footer>
+
+    <!-- Map Picker Modal -->
+    <div id="restMapModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; width:min(900px,95vw); max-width:95vw; border-radius:10px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #eee;">
+                <strong>Select Restaurant Location</strong>
+                <button type="button" id="restCloseMap" class="btn">Close</button>
+            </div>
+            <div style="padding:10px 14px; display:flex; gap:8px; align-items:center; border-bottom:1px solid #eee;">
+                <input id="restMapSearchInput" type="text" placeholder="Search place or address" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <button id="restMapSearchBtn" class="btn" type="button">Search</button>
+            </div>
+            <div id="restMap" style="height:420px;"></div>
+            <div style="padding:10px 14px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid #eee;">
+                <button id="restUseCurrent" class="btn" type="button">Use My Location</button>
+                <button id="restConfirmMap" class="btn" type="button">Confirm Location</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="js/shared.js"></script>
+    <script src="profile.js"></script>
+    <script>
+    (()=>{
+        // Fix default marker icon paths when using CDN (prevents 404s)
+        if (window.L && L.Icon && L.Icon.Default) {
+            L.Icon.Default.mergeOptions({
+                iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
+            });
+        }
+        const btn = document.getElementById('rest-choose-on-map');
+        const modal = document.getElementById('restMapModal');
+        const closeBtn = document.getElementById('restCloseMap');
+        const searchInput = document.getElementById('restMapSearchInput');
+        const searchBtn = document.getElementById('restMapSearchBtn');
+        const confirmBtn = document.getElementById('restConfirmMap');
+        const useBtn = document.getElementById('restUseCurrent');
+        const badge = document.getElementById('rest-location-badge');
+        const addrEl = document.getElementById('address');
+        const latEl = document.getElementById('rest-lat');
+        const lngEl = document.getElementById('rest-lng');
+
+        let map=null, marker=null, selLat=null, selLng=null;
+
+        function openModal(){ modal.style.display='flex'; setTimeout(initMap,10); }
+        function closeModal(){ modal.style.display='none'; }
+
+        function initMap(){
+            if (!map){
+                const startLat = parseFloat(latEl.value) || 17.385, startLng = parseFloat(lngEl.value) || 78.4867;
+                map = L.map('restMap').setView([startLat, startLng], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+                map.on('click', (e)=> setPoint(e.latlng.lat, e.latlng.lng));
+            }
+            if (latEl.value && lngEl.value){ setPoint(parseFloat(latEl.value), parseFloat(lngEl.value)); }
+            if (navigator.geolocation){ navigator.geolocation.getCurrentPosition((pos)=>{ if(!latEl.value){ map.setView([pos.coords.latitude,pos.coords.longitude], 15); } }, ()=>{}, { enableHighAccuracy:true, timeout:6000 }); }
+        }
+
+        async function geocodeSearch(q){
+            const query=(q||'').trim(); if (!query) return;
+            const coordMatch=query.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+            if (coordMatch){ return setPoint(parseFloat(coordMatch[1]), parseFloat(coordMatch[2])); }
+            const params=new URLSearchParams({ q: query, limit:'3', addressdetails:'1', countrycodes:'in' });
+            if (window.NOMINATIM_CONTACT_EMAIL) params.set('email', window.NOMINATIM_CONTACT_EMAIL);
+            const resp=await fetch(`/webtechnologies/FoodBox/backend/api/utils/geocode_search.php?${params.toString()}`, { credentials:'include' });
+            if (!resp.ok) { alert('Search failed'); return; }
+            const results=await resp.json(); if (!Array.isArray(results) || results.length===0){ alert('No results'); return; }
+            const best=results[0]; setPoint(parseFloat(best.lat), parseFloat(best.lon));
+        }
+
+        function setPoint(lat,lng){ selLat=lat; selLng=lng; if (!map) return; if (!marker){ marker=L.marker([lat,lng],{draggable:true}).addTo(map); marker.on('dragend', ev=>{ const p=ev.target.getLatLng(); selLat=p.lat; selLng=p.lng; }); } else { marker.setLatLng([lat,lng]); } map.setView([lat,lng], 16); }
+
+        async function reverseFill(){
+            if (selLat==null||selLng==null) return;
+            const p=new URLSearchParams({ lat:String(selLat), lon:String(selLng) });
+            if (window.NOMINATIM_CONTACT_EMAIL) p.set('email', window.NOMINATIM_CONTACT_EMAIL);
+            const r=await fetch(`/webtechnologies/FoodBox/backend/api/utils/geocode_reverse.php?${p.toString()}`, { credentials:'include' });
+            if (r.ok){ const j=await r.json(); const display=j && j.display_name ? j.display_name : `${selLat.toFixed(5)}, ${selLng.toFixed(5)}`; addrEl.value=display; badge.style.display='inline'; badge.textContent=`Location set (${selLat.toFixed(5)}, ${selLng.toFixed(5)})`; }
+        }
+
+        btn?.addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+        closeBtn?.addEventListener('click', (e)=>{ e.preventDefault(); closeModal(); });
+        searchBtn?.addEventListener('click', (e)=>{ e.preventDefault(); geocodeSearch(searchInput.value); });
+        searchInput?.addEventListener('keydown', (e)=>{ if (e.key==='Enter'){ e.preventDefault(); geocodeSearch(searchInput.value); } });
+        useBtn?.addEventListener('click', (e)=>{ e.preventDefault(); if(!navigator.geolocation) return alert('Geolocation not available'); navigator.geolocation.getCurrentPosition((pos)=>{ setPoint(pos.coords.latitude,pos.coords.longitude); }, ()=> alert('Could not get your location'), { enableHighAccuracy:true, timeout:6000 }); });
+        confirmBtn?.addEventListener('click', async (e)=>{ e.preventDefault(); if (selLat==null||selLng==null) return alert('Pick a location'); latEl.value=String(selLat); lngEl.value=String(selLng); await reverseFill(); closeModal(); });
+    })();
+
+    // Unread tickets badge
+    (function(){
+        async function refreshUnread(){
+            try{
+                const r = await fetch('/webtechnologies/FoodBox/backend/api/support/restaurant_notifications_count.php?type=support_ticket', { credentials: 'include' });
+                const j = await r.json();
+                const badge = document.getElementById('tickets-unread-badge');
+                if (r.ok && j && j.success){
+                    const c = parseInt(j.unread||0,10);
+                    if (c>0){ badge.textContent = c>99?'99+':String(c); badge.style.display='inline-block'; }
+                    else { badge.style.display='none'; }
+                } else { badge.style.display='none'; }
+            }catch(e){}
+        }
+        document.addEventListener('DOMContentLoaded', refreshUnread);
+        setInterval(refreshUnread, 30000);
+    })();
+    </script>
+</body>
+</html>
